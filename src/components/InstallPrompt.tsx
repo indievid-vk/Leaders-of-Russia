@@ -4,7 +4,7 @@ import { Download, X, Share } from 'lucide-react';
 
 export default function InstallPrompt() {
   const [isIOS, setIsIOS] = useState(false);
-  const [isAndroid, setIsAndroid] = useState(false);
+  const [isInstallable, setIsInstallable] = useState(false); // Can be Desktop or Android
   const [showPrompt, setShowPrompt] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
@@ -28,11 +28,11 @@ export default function InstallPrompt() {
       setShowPrompt(true);
     }
     
-    // Check Android & catch install prompt
+    // Catch standard install prompt (Android, Desktop Chrome/Edge)
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      setIsAndroid(true);
+      setIsInstallable(true);
       setShowPrompt(true);
     };
 
@@ -86,10 +86,10 @@ export default function InstallPrompt() {
               Установить приложение
             </h3>
             
-            {isAndroid && (
+            {isInstallable && (
               <>
                 <p className="text-sm text-slate-600 leading-snug">
-                  Установите приложение на главный экран для быстрого доступа без интернета.
+                  Установите приложение для работы офлайн и быстрого доступа.
                 </p>
                 <button
                   onClick={handleInstall}
