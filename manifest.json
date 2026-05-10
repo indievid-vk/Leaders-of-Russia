@@ -1,0 +1,24 @@
+{
+  "short_name": "Правители",
+  "name": "Правители России: История",
+  "icons": [
+    {
+      "src": "/icon-192.webp",
+      "type": "image/webp",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.webp",
+      "type": "image/webp",
+      "sizes": "512x512",
+      "purpose": "any"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#f8fafc",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#2563eb",
+  "description": "Интерактивные карточки для изучения истории правителей России от Рюрика до наших дней."
+}

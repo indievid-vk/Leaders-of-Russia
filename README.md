@@ -1,11 +1,38 @@
-<div align="center">
+# Правители России (Rulers of Russia)
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+Интерактивное веб-приложение (PWA) для изучения истории правителей России в формате карточек. От Рюрика до наших дней.
 
-  <h1>Built with AI Studio</h2>
+## Особенности
+- **Интерактивные карточки**: Названия, годы правления и ключевые события.
+- **Трекинг прогресса**: Система «изучено/не изучено» с сохранением в локальную базу данных (IndexedDB).
+- **Режимы обучения**: Чтение биографий или проверка знаний.
+- **PWA Ready**: Устанавливаемое приложение для Android и iOS.
+- **Адаптивный дизайн**: Оптимизировано для мобильных устройств и десктопов.
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+## Технологии
+- React 18 + Vite
+- TypeScript
+- Tailwind CSS
+- Lucide React (иконки)
+- Framer Motion (анимации)
+- Dexie.js (IndexedDB wrapper)
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
+## Запуск проекта
 
-</div>
+1. Установите зависимости:
+   ```bash
+   npm install
+   ```
+
+2. Запустите сервер разработки:
+   ```bash
+   npm run dev
+   ```
+
+3. Для сборки проекта:
+   ```bash
+   npm run build
+   ```
+
+## Авторство
+Разработано в рамках проекта **Индивид СтудИИя**.
