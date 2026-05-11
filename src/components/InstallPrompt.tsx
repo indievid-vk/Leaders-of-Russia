@@ -30,6 +30,7 @@ export default function InstallPrompt() {
     
     // Catch standard install prompt (Android, Desktop Chrome/Edge)
     const handleBeforeInstallPrompt = (e: Event) => {
+      console.log('PWA: beforeinstallprompt event caught');
       e.preventDefault();
       setDeferredPrompt(e);
       setIsInstallable(true);
