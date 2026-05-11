@@ -21,9 +21,6 @@ export default function App() {
   const [variant, setVariant] = useState<StudyVariant | null>(null);
 
   useEffect(() => {
-    const savedVariant = localStorage.getItem('studyVariant') as StudyVariant;
-    if (savedVariant) setVariant(savedVariant);
-    
     async function loadProgress() {
       const all = await getAllProgress();
       const learned = new Set<string>();
