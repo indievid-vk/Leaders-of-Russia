@@ -64,57 +64,67 @@ export default function InstallPrompt() {
 
   return (
     <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 50 }}
-        className="fixed bottom-4 left-4 right-4 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 p-4 sm:max-w-sm sm:mx-auto sm:bottom-8"
-      >
-        <button 
-          onClick={handleDismiss}
-          className="absolute top-2 right-2 text-slate-400 hover:text-slate-600 bg-slate-50 hover:bg-slate-100 p-1 rounded-full transition-colors"
+      {showPrompt && (
+        <motion.div
+          initial={{ opacity: 0, y: 100 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 100 }}
+          transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+          className="fixed bottom-0 left-0 right-0 z-50 flex justify-center p-4 sm:p-6 pointer-events-none"
         >
-          <X size={20} />
-        </button>
+          <div className="bg-white rounded-3xl shadow-[0_-8px_30px_rgb(0,0,0,0.12)] border border-slate-100 p-6 w-full max-w-md pointer-events-auto relative">
+            <button 
+              onClick={handleDismiss}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 bg-slate-50 hover:bg-slate-100 p-2 rounded-full transition-colors"
+              aria-label="Закрыть"
+            >
+              <X size={20} />
+            </button>
 
-        <div className="flex gap-4">
-          <div className="bg-blue-100 p-3 rounded-2xl h-fit text-blue-600 shrink-0">
-            <Download size={24} />
-          </div>
-          
-          <div className="flex flex-col gap-2 pt-1 pr-6">
-            <h3 className="font-bold text-slate-800 leading-tight">
-              Установить приложение
-            </h3>
-            
-            {isInstallable && (
-              <>
-                <p className="text-sm text-slate-600 leading-snug">
-                  Установите приложение для работы офлайн и быстрого доступа.
-                </p>
-                <button
-                  onClick={handleInstall}
-                  className="mt-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-xl shadow-md transition-colors w-full text-center"
-                >
-                  Установить
-                </button>
-              </>
-            )}
-
-            {isIOS && (
-              <div className="text-sm text-slate-600 leading-snug space-y-2 mt-1">
-                <p>Установите приложение на экран «Домой» для работы без интернета.</p>
-                <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs text-slate-500">
-                  <ol className="list-decimal pl-4 space-y-1">
-                    <li>Нажмите на иконку <Share size={14} className="inline opacity-70 mb-0.5 mx-0.5" /> внизу экрана</li>
-                    <li>Выберите пункт <strong>«На экран "Домой"»</strong></li>
-                  </ol>
-                </div>
+            <div className="flex flex-col items-center text-center">
+              <div className="bg-blue-600 text-white p-4 rounded-3xl mb-4 shadow-lg shadow-blue-100">
+                <Download size={32} />
               </div>
-            )}
+              
+              <h3 className="text-xl font-bold text-slate-900 mb-2">
+                Установить приложение
+              </h3>
+              
+              {isInstallable && (
+                <>
+                  <p className="text-slate-600 mb-6 max-w-[280px]">
+                    Установите «Правители России» на экран домой для быстрого доступа и работы без интернета.
+                  </p>
+                  <button
+                    onClick={handleInstall}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-2xl shadow-lg shadow-blue-200 transition-all active:scale-[0.98]"
+                  >
+                    Установить сейчас
+                  </button>
+                </>
+              )}
+
+              {isIOS && (
+                <div className="w-full text-slate-600">
+                  <p className="mb-4">Установите на экран «Домой», чтобы приложение всегда было под рукой.</p>
+                  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-sm text-slate-500 text-left">
+                    <ol className="space-y-3">
+                      <li className="flex items-center gap-3">
+                        <span className="flex items-center justify-center bg-white border border-slate-200 w-6 h-6 rounded-full text-xs font-bold text-blue-600">1</span>
+                        <span>Нажмите кнопку «Поделиться» <Share size={16} className="inline mb-1 text-blue-600" /></span>
+                      </li>
+                      <li className="flex items-center gap-3">
+                        <span className="flex items-center justify-center bg-white border border-slate-200 w-6 h-6 rounded-full text-xs font-bold text-blue-600">2</span>
+                        <span>Выберите <strong>«На экран "Домой"»</strong></span>
+                      </li>
+                    </ol>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      </motion.div>
+        </motion.div>
+      )}
     </AnimatePresence>
   );
 }

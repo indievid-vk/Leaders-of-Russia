@@ -63,35 +63,43 @@ export default function UpdatePrompt() {
     <AnimatePresence>
       {show && (
         <motion.div
-          initial={{ opacity: 0, y: 50, scale: 0.9 }}
+          initial={{ opacity: 0, y: 100, scale: 0.9 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 20, scale: 0.9 }}
-          className="fixed bottom-24 left-4 right-4 z-50 flex justify-center pointer-events-none"
+          exit={{ opacity: 0, y: 50, scale: 0.9 }}
+          className="fixed bottom-0 left-0 right-0 z-[60] flex justify-center p-4 sm:p-6 pointer-events-none"
         >
-          <div className="bg-slate-900 text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between gap-4 w-full max-w-sm pointer-events-auto border border-slate-700/50 backdrop-blur-lg">
-            <div className="flex items-center gap-3">
-              <div className="bg-blue-500/20 p-2 rounded-xl text-blue-400">
-                <RefreshCw size={20} className="animate-spin-slow" />
+          <div className="bg-slate-900 text-white p-6 rounded-3xl shadow-2xl flex flex-col gap-6 w-full max-w-md pointer-events-auto border border-slate-700/50 backdrop-blur-xl">
+            <div className="flex items-start gap-4">
+              <div className="bg-blue-500 text-white p-3 rounded-2xl shadow-lg shadow-blue-500/20 shrink-0">
+                <RefreshCw size={28} className="animate-spin-slow" />
               </div>
-              <div>
-                <p className="font-bold text-sm">Приложение обновилось</p>
-                <p className="text-xs text-slate-400">Нажмите, чтобы применить</p>
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-white mb-1">Приложение обновилось</h3>
+                <p className="text-slate-400 text-sm leading-relaxed">
+                  Мы добавили новые функции и улучшили работу приложения. Обновите страницу, чтобы применить изменения.
+                </p>
               </div>
+              <button 
+                onClick={() => setShow(false)}
+                className="p-1 text-slate-500 hover:text-white transition-colors"
+                aria-label="Закрыть"
+              >
+                <X size={20} />
+              </button>
             </div>
             
-            <div className="flex items-center gap-2">
+            <div className="flex gap-3">
               <button
                 onClick={handleUpdate}
-                className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-sm font-bold transition-colors shadow-lg shadow-blue-900/20"
+                className="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-3.5 px-6 rounded-2xl font-bold transition-all shadow-lg shadow-blue-900/20 active:scale-[0.98]"
               >
-                Обновить
+                Обновить сейчас
               </button>
               <button 
                 onClick={() => setShow(false)}
-                className="p-2 text-slate-500 hover:text-white transition-colors"
-                aria-label="Закрыть"
+                className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-3.5 px-6 rounded-2xl font-bold transition-all active:scale-[0.98]"
               >
-                <X size={18} />
+                Понятно
               </button>
             </div>
           </div>
