@@ -7,43 +7,50 @@ export default function UpdatePrompt() {
   const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
 
   useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistration().then(reg => {
-        if (!reg) return;
+    if (!('serviceWorker' in navigator)) return;
 
-        const checkUpdate = (registration: ServiceWorkerRegistration) => {
-          if (registration.waiting) {
-            setWaitingWorker(registration.waiting);
+    const onUpdateFound = (reg: ServiceWorkerRegistration) => {
+      const newWorker = reg.installing;
+      if (newWorker) {
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            setWaitingWorker(newWorker);
             setShow(true);
           }
-        };
-
-        // Check on load
-        checkUpdate(reg);
-
-        // Listen for new worker
-        reg.addEventListener('updatefound', () => {
-          const newWorker = reg.installing;
-          if (newWorker) {
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                setWaitingWorker(newWorker);
-                setShow(true);
-              }
-            });
-          }
         });
-      });
+      }
+    };
 
-      // Handle controller change (reload after skipWaiting)
-      let refreshing = false;
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!refreshing) {
-          refreshing = true;
-          window.location.reload();
-        }
+    navigator.serviceWorker.getRegistration().then(reg => {
+      if (!reg) return;
+
+      // 1. Check if there's already a waiting worker
+      if (reg.waiting) {
+        setWaitingWorker(reg.waiting);
+        setShow(true);
+      }
+
+      // 2. Listen for future updates
+      reg.addEventListener('updatefound', () => onUpdateFound(reg));
+    });
+
+    // 3. Periodic check for updates (every 5 minutes)
+    const interval = setInterval(() => {
+      navigator.serviceWorker.getRegistration().then(reg => {
+        if (reg) reg.update();
       });
-    }
+    }, 5 * 60 * 1000);
+
+    // 4. Handle controller change (automatic reload)
+    const handleControllerChange = () => {
+      window.location.reload();
+    };
+    navigator.serviceWorker.addEventListener('controllerchange', handleControllerChange);
+
+    return () => {
+      clearInterval(interval);
+      navigator.serviceWorker.removeEventListener('controllerchange', handleControllerChange);
+    };
   }, []);
 
   const handleUpdate = () => {
