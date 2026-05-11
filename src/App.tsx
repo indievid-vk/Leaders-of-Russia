@@ -2,7 +2,9 @@ import { useState, useEffect, useMemo } from 'react';
 import confetti from 'canvas-confetti';
 import { Award, ChevronLeft, ChevronRight, BookOpen, GraduationCap, RotateCcw, User, Calendar, Shuffle, Play, Settings2, Trash2, LayoutGrid } from 'lucide-react';
 import Flashcard, { RulerData } from './components/Flashcard';
+import Timeline from './components/Timeline';
 import InstallPrompt from './components/InstallPrompt';
+import UpdatePrompt from './components/UpdatePrompt';
 import rulersDataRaw from './lib/rulers.json';
 import { saveProgress, getAllProgress, resetProgress } from './lib/db';
 
@@ -14,6 +16,7 @@ export default function App() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [learnedCount, setLearnedCount] = useState(0);
   const [isReady, setIsReady] = useState(false);
+  const [showTimeline, setShowTimeline] = useState(false);
   const [learnedSet, setLearnedSet] = useState<Set<string>>(new Set());
   const [variant, setVariant] = useState<StudyVariant | null>(null);
 
@@ -109,9 +112,19 @@ export default function App() {
 
   if (!isReady) return <div className="flex h-screen items-center justify-center bg-slate-50"><p className="text-slate-500 animate-pulse">Загрузка дневника...</p></div>;
 
+  if (showTimeline) {
+    return (
+      <>
+        <Timeline rulers={rulersData} onBack={() => setShowTimeline(false)} />
+        <UpdatePrompt />
+      </>
+    );
+  }
+
   if (!variant) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800 items-center justify-center p-6">
+        <UpdatePrompt />
         <div className="w-full max-w-md bg-white rounded-3xl shadow-xl p-8 border border-slate-200">
           <div className="flex flex-col items-center mb-8">
             <div className="bg-blue-600 text-white p-4 rounded-3xl mb-4 shadow-lg shadow-blue-100">
@@ -122,6 +135,21 @@ export default function App() {
           </div>
 
           <div className="space-y-4">
+            <button 
+              onClick={() => setShowTimeline(true)}
+              className="w-full flex items-center gap-4 p-4 rounded-2xl border-2 border-blue-100 bg-blue-50/50 hover:border-blue-500 hover:bg-blue-50 transition-all text-left group"
+            >
+              <div className="bg-blue-100 p-3 rounded-xl group-hover:bg-blue-200 text-blue-600 transition-colors">
+                <LayoutGrid size={24} />
+              </div>
+              <div>
+                <div className="font-bold">Хронология правителей</div>
+                <div className="text-xs text-slate-500">Посмотреть всю историю по порядку</div>
+              </div>
+            </button>
+
+            <div className="pt-2 pb-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Обучение</div>
+
             <button 
               onClick={() => startStudy('nameFirst')}
               className="w-full flex items-center gap-4 p-4 rounded-2xl border-2 border-slate-100 hover:border-blue-500 hover:bg-blue-50 transition-all text-left group"
@@ -261,6 +289,7 @@ export default function App() {
         </div>
       </main>
       <InstallPrompt />
+      <UpdatePrompt />
     </div>
   );
 }
