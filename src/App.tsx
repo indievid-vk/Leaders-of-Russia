@@ -1,10 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
 import confetti from 'canvas-confetti';
-import { Award, ChevronLeft, ChevronRight, BookOpen, GraduationCap, RotateCcw, User, Calendar, Shuffle, Play, Settings2, Trash2, LayoutGrid } from 'lucide-react';
+import { Award, ChevronLeft, ChevronRight, BookOpen, GraduationCap, RotateCcw, User, Calendar, Shuffle, Play, Settings2, Trash2, LayoutGrid, Info } from 'lucide-react';
 import Flashcard, { RulerData } from './components/Flashcard';
 import Timeline from './components/Timeline';
 import InstallPrompt from './components/InstallPrompt';
 import UpdatePrompt from './components/UpdatePrompt';
+import UpdatePopup from './components/UpdatePopup';
+import AboutPage from './components/AboutPage';
 import rulersDataRaw from './lib/rulers.json';
 import { saveProgress, getAllProgress, resetProgress } from './lib/db';
 
@@ -17,6 +19,7 @@ export default function App() {
   const [learnedCount, setLearnedCount] = useState(0);
   const [isReady, setIsReady] = useState(false);
   const [showTimeline, setShowTimeline] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
   const [learnedSet, setLearnedSet] = useState<Set<string>>(new Set());
   const [variant, setVariant] = useState<StudyVariant | null>(null);
 
@@ -109,19 +112,39 @@ export default function App() {
 
   if (!isReady) return <div className="flex h-screen items-center justify-center bg-slate-50"><p className="text-slate-500 animate-pulse">Загрузка дневника...</p></div>;
 
+  if (showAbout) {
+    return (
+      <>
+        <AboutPage onBack={() => setShowAbout(false)} />
+        <UpdatePopup />
+      </>
+    );
+  }
+
   if (showTimeline) {
     return (
       <>
-        <Timeline rulers={rulersData} onBack={() => setShowTimeline(false)} />
+        <Timeline rulers={rulersData} onBack={() => setShowTimeline(false)} onShowAbout={() => setShowAbout(true)} />
         <UpdatePrompt />
+        <UpdatePopup />
       </>
     );
   }
 
   if (!variant) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800 items-center justify-center p-6">
+      <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800 items-center justify-center p-6 relative">
         <UpdatePrompt />
+        <UpdatePopup />
+        
+        <button 
+          onClick={() => setShowAbout(true)}
+          className="absolute top-6 right-6 p-3 bg-white shadow-sm border border-slate-200 rounded-2xl text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-all z-20"
+          title="О приложении"
+        >
+          <Info size={24} />
+        </button>
+
         <div className="w-full max-w-md bg-white rounded-3xl shadow-xl p-8 border border-slate-200">
           <div className="flex flex-col items-center mb-8">
             <div className="bg-blue-600 text-white p-4 rounded-3xl mb-4 shadow-lg shadow-blue-100">
@@ -218,6 +241,15 @@ export default function App() {
 
         <div className="flex items-center gap-1 sm:gap-4 ml-2">
           <button 
+            onClick={() => setShowAbout(true)} 
+            className="flex flex-col items-center justify-center text-slate-400 hover:text-blue-600 px-2 py-1 rounded-lg hover:bg-blue-50 transition"
+            title="О приложении"
+          >
+            <Info size={18} />
+            <span className="text-[9px] font-bold uppercase">Инфо</span>
+          </button>
+
+          <button 
             onClick={handleGoToStart} 
             className="flex flex-col items-center justify-center text-slate-600 hover:text-blue-600 px-2 py-1 rounded-lg hover:bg-blue-50 transition"
             title="К началу"
@@ -287,6 +319,7 @@ export default function App() {
       </main>
       <InstallPrompt />
       <UpdatePrompt />
+      <UpdatePopup />
     </div>
   );
 }

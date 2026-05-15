@@ -5,23 +5,34 @@ import { RulerData } from './Flashcard';
 interface TimelineProps {
   rulers: RulerData[];
   onBack: () => void;
+  onShowAbout: () => void;
 }
 
-export default function Timeline({ rulers, onBack }: TimelineProps) {
+export default function Timeline({ rulers, onBack, onShowAbout }: TimelineProps) {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-slate-200 px-4 sm:px-6 py-4 flex items-center gap-4 sticky top-0 z-20">
-        <button 
-          onClick={onBack}
-          className="p-2 hover:bg-slate-100 rounded-xl transition-colors text-slate-600"
-        >
-          <ChevronLeft size={24} />
-        </button>
-        <div>
-          <h1 className="text-xl font-bold">Хронология правителей</h1>
-          <p className="text-xs text-slate-500 uppercase tracking-wider font-medium">История России сквозь века</p>
+      <header className="bg-white shadow-sm border-b border-slate-200 px-4 sm:px-6 py-4 flex items-center justify-between sticky top-0 z-20">
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={onBack}
+            className="p-2 hover:bg-slate-100 rounded-xl transition-colors text-slate-600"
+          >
+            <ChevronLeft size={24} />
+          </button>
+          <div>
+            <h1 className="text-xl font-bold">Хронология</h1>
+            <p className="text-[10px] text-slate-500 uppercase tracking-wider font-medium font-mono truncate">История России</p>
+          </div>
         </div>
+
+        <button 
+          onClick={onShowAbout}
+          className="p-2 hover:bg-slate-100 rounded-xl transition-colors text-slate-500 hover:text-blue-600"
+          title="О приложении"
+        >
+          <Info size={24} />
+        </button>
       </header>
 
       {/* Main Content */}
