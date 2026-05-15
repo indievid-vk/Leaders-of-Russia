@@ -27,6 +27,18 @@ export default function AboutPage({ onBack }: AboutPageProps) {
         <section className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100">
           <div className="flex items-center gap-4 mb-6">
             <div className="bg-blue-600 text-white p-3 rounded-2xl shadow-lg shadow-blue-100">
+              <Info size={28} />
+            </div>
+            <h2 className="text-xl font-bold">О приложении</h2>
+          </div>
+          <p className="text-slate-600 leading-relaxed text-lg">
+            Приложение <strong className="text-slate-900">Правители России</strong> — это практический помощник для запоминания правителей России и хронологии их правления.
+          </p>
+        </section>
+
+        <section className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="bg-blue-600 text-white p-3 rounded-2xl shadow-lg shadow-blue-100">
               <Zap size={28} />
             </div>
             <h2 className="text-xl font-bold">Особенности приложения</h2>
