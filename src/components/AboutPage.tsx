@@ -27,61 +27,50 @@ export default function AboutPage({ onBack }: AboutPageProps) {
         <section className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100">
           <div className="flex items-center gap-4 mb-6">
             <div className="bg-blue-600 text-white p-3 rounded-2xl shadow-lg shadow-blue-100">
-              <Info size={28} />
+              <Zap size={28} />
             </div>
-            <h2 className="text-xl font-bold">О проекте</h2>
+            <h2 className="text-xl font-bold">Особенности приложения</h2>
           </div>
-          <p className="text-slate-600 leading-relaxed mb-4 text-lg">
-            Приложение <strong className="text-slate-900">Правители России</strong> — это практический помощник для запоминания правителей России и хронологии их правления.
-          </p>
-        </section>
-
-        <section className="space-y-6">
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest px-2">Технология PWA</h3>
           
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-              <div className="text-blue-600 mb-3"><Zap size={24} /></div>
-              <h4 className="font-bold mb-2">Современный стандарт</h4>
-              <p className="text-sm text-slate-500">Позволяет устанавливать приложение по прямой ссылке, без магазинов (App Store/Play Store).</p>
+          <div className="space-y-6">
+            <div>
+              <h3 className="font-bold text-slate-900 mb-2">Технология PWA</h3>
+              <p className="text-slate-600 leading-relaxed">
+                Приложение работает как PWA (Progressive Web App) — современная технология, которая позволяет устанавливать приложение не из магазина приложений, а просто по прямой ссылке. Оно живет прямо в вашем браузере, почти не занимая лишнего места.
+              </p>
             </div>
-            
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-              <div className="text-green-600 mb-3"><ShieldCheck size={24} /></div>
-              <h4 className="font-bold mb-2">Полная приватность</h4>
-              <p className="text-sm text-slate-500">Все записи и прогресс хранятся только в памяти браузера. Никаких облаков.</p>
+
+            <p className="text-slate-600 leading-relaxed font-medium">
+              Все записи и фото хранятся только внутри памяти браузера. Это обеспечивает полную приватность без передачи информации в облачные хранилища.
+            </p>
+
+            <div className="bg-blue-50 rounded-2xl p-6 border border-blue-100">
+              <h3 className="font-bold text-blue-900 mb-4 flex items-center gap-2">
+                <Globe size={20} /> Преимущества:
+              </h3>
+              <ul className="space-y-3">
+                {[
+                  'Офлайн-доступ: работает без интернета после загрузки.',
+                  'Не занимает много места в памяти устройства.',
+                  'Мгновенные обновления без необходимости скачивания из магазинов.',
+                  'Безопасность: работает только через защищенный протокол HTTPS.'
+                ].map((text, i) => (
+                  <li key={i} className="flex gap-3 text-sm text-slate-700">
+                    <div className="bg-blue-500/20 p-1 rounded h-fit mt-0.5">
+                      <Check size={12} className="text-blue-600" />
+                    </div>
+                    <span>{text}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-          </div>
 
-          <div className="bg-blue-600 text-white rounded-3xl p-8 shadow-xl shadow-blue-100 relative overflow-hidden">
-             <div className="absolute top-0 right-0 -mr-8 -mt-8 opacity-10 bg-white w-40 h-40 rounded-full" />
-             <h4 className="text-xl font-bold mb-6 flex items-center gap-2">
-               <Globe size={24} /> Преимущества
-             </h4>
-             <ul className="space-y-4">
-               {[
-                 { title: 'Офлайн-доступ', desc: 'работает без интернета после загрузки.' },
-                 { title: 'Легкость', desc: 'не занимает много места в памяти устройства.' },
-                 { title: 'Мгновенные обновления', desc: 'без необходимости скачивания из магазинов.' },
-                 { title: 'Безопасность', desc: 'только через защищенный протокол HTTPS.' }
-               ].map((item, i) => (
-                 <li key={i} className="flex gap-3">
-                   <div className="bg-white/20 p-1 rounded-lg h-fit mt-1">
-                     <Check size={14} className="text-white" />
-                   </div>
-                   <div>
-                     <span className="font-bold">{item.title}:</span> <span className="opacity-90">{item.desc}</span>
-                   </div>
-                 </li>
-               ))}
-             </ul>
-          </div>
-
-          <div className="bg-slate-100 rounded-2xl p-6 border border-slate-200">
-             <h4 className="font-bold mb-2 flex items-center gap-2 text-slate-700">
-               <Cpu size={20} /> Ограничения
-             </h4>
-             <p className="text-sm text-slate-500">Зависимость от возможностей и обновлений вашего браузера.</p>
+            <div className="bg-slate-100 rounded-2xl p-6 border border-slate-200">
+              <h3 className="font-bold text-slate-700 mb-2 flex items-center gap-2">
+                <Cpu size={20} /> Ограничения:
+              </h3>
+              <p className="text-sm text-slate-600">Зависимость от возможностей браузера.</p>
+            </div>
           </div>
         </section>
 
