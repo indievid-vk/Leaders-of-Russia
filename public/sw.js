@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rulers-pwa-v4';
+const CACHE_NAME = 'rulers-pwa-v5';
 const PRECACHE_URLS = [
   './',
   'index.html',
@@ -37,6 +37,16 @@ self.addEventListener('activate', (event) => {
 // Stale-While-Revalidate Strategy for offline work
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+
+  // Handle SPA navigation routing gracefully in offline mode
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        return caches.match('./') || caches.match('index.html');
+      })
+    );
+    return;
+  }
 
   event.respondWith(
     caches.open(CACHE_NAME).then((cache) => {

@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { ChevronLeft, Info, ShieldCheck, Zap, Globe, Cpu, Mail, Heart, ExternalLink } from 'lucide-react';
+import { ChevronLeft, Info, ShieldCheck, Zap, Globe, Cpu, Mail, Heart, ExternalLink, Download } from 'lucide-react';
 
 interface AboutPageProps {
   onBack: () => void;
@@ -82,6 +82,25 @@ export default function AboutPage({ onBack }: AboutPageProps) {
                 <Cpu size={20} /> Ограничения:
               </h3>
               <p className="text-sm text-slate-600">Зависимость от возможностей браузера.</p>
+            </div>
+
+            <div className="bg-white rounded-2xl p-6 border border-blue-100 shadow-sm flex flex-col items-center text-center mt-4">
+              <div className="bg-blue-600 text-white p-3 rounded-2xl mb-3 shadow-lg shadow-blue-100">
+                <Download size={24} />
+              </div>
+              <h3 className="font-bold text-slate-900 mb-1">Установка на экран «Домой»</h3>
+              <p className="text-sm text-slate-500 mb-4 max-w-sm">
+                Вы можете сохранить приложение на экран «Домой» вашего устройства для быстрого доступа без интернета.
+              </p>
+              <button
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent('trigger-pwa-install-prompt'));
+                }}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl text-sm transition-all shadow-md shadow-blue-100 flex items-center gap-2 active:scale-95 cursor-pointer"
+              >
+                <Download size={16} />
+                <span>Показать инструкцию по установке</span>
+              </button>
             </div>
           </div>
         </section>

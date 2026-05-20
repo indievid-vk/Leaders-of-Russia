@@ -14,19 +14,20 @@ export default function InstallPrompt() {
       return;
     }
 
-    // Check if dismissed before
-    const isDismissed = localStorage.getItem('pwaPromptDismissed');
-    if (isDismissed) {
-      return;
-    }
+    const checkDevice = () => {
+      const userAgent = window.navigator.userAgent.toLowerCase();
+      const isIOSDevice = /iphone|ipad|ipod/.test(userAgent) || 
+                          (navigator.maxTouchPoints > 0 && /macintel|macintosh/.test(userAgent));
+      
+      if (isIOSDevice) {
+        setIsIOS(true);
+        if (!localStorage.getItem('pwaPromptDismissed')) {
+          setShowPrompt(true);
+        }
+      }
+    };
 
-    const userAgent = window.navigator.userAgent.toLowerCase();
-    
-    // Check iOS
-    if (/iphone|ipad|ipod/.test(userAgent)) {
-      setIsIOS(true);
-      setShowPrompt(true);
-    }
+    checkDevice();
     
     // Catch standard install prompt (Android, Desktop Chrome/Edge)
     const handleBeforeInstallPrompt = (e: Event) => {
@@ -34,15 +35,34 @@ export default function InstallPrompt() {
       e.preventDefault();
       setDeferredPrompt(e);
       setIsInstallable(true);
+      
+      if (!localStorage.getItem('pwaPromptDismissed')) {
+        setShowPrompt(true);
+      }
+    };
+
+    // Custom event to trigger manually from "About" page
+    const handleTriggerManual = () => {
+      const userAgent = window.navigator.userAgent.toLowerCase();
+      const isIOSDevice = /iphone|ipad|ipod/.test(userAgent) || 
+                          (navigator.maxTouchPoints > 0 && /macintel|macintosh/.test(userAgent));
+      
+      if (isIOSDevice) {
+        setIsIOS(true);
+      } else if (!deferredPrompt) {
+        setIsInstallable(true);
+      }
       setShowPrompt(true);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('trigger-pwa-install-prompt', handleTriggerManual);
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('trigger-pwa-install-prompt', handleTriggerManual);
     };
-  }, []);
+  }, [deferredPrompt]);
 
   const handleDismiss = () => {
     setShowPrompt(false);
