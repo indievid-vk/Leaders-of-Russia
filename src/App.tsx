@@ -116,6 +116,7 @@ export default function App() {
     return (
       <>
         <AboutPage onBack={() => setShowAbout(false)} />
+        <InstallPrompt />
         <UpdatePopup />
       </>
     );
@@ -125,6 +126,7 @@ export default function App() {
     return (
       <>
         <Timeline rulers={rulersData} onBack={() => setShowTimeline(false)} onShowAbout={() => setShowAbout(true)} />
+        <InstallPrompt />
         <UpdatePrompt />
         <UpdatePopup />
       </>
@@ -136,6 +138,7 @@ export default function App() {
       <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800 items-center justify-center p-6 relative">
         <UpdatePrompt />
         <UpdatePopup />
+        <InstallPrompt />
         
         <button 
           onClick={() => setShowAbout(true)}

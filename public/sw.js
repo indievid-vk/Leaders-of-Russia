@@ -42,7 +42,9 @@ self.addEventListener('fetch', (event) => {
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request).catch(() => {
-        return caches.match('./') || caches.match('index.html');
+        return caches.match('./').then((response) => {
+          return response || caches.match('index.html');
+        });
       })
     );
     return;
@@ -51,17 +53,31 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.match(event.request).then((cachedResponse) => {
-        const fetchedResponse = fetch(event.request).then((networkResponse) => {
-          // If we got a valid response, put it in cache
+        if (cachedResponse) {
+          // Stale-While-Revalidate: serve from cache but update in background if online
+          fetch(event.request).then((networkResponse) => {
+            if (networkResponse && networkResponse.status === 200) {
+              const url = new URL(event.request.url);
+              if (url.protocol.startsWith('http')) {
+                cache.put(event.request, networkResponse.clone()).catch(() => {});
+              }
+            }
+          }).catch(() => {
+            // Silently swallow errors (e.g., when offline)
+          });
+          return cachedResponse;
+        }
+
+        // Cache miss: must fetch from network and cache
+        return fetch(event.request).then((networkResponse) => {
           if (networkResponse && networkResponse.status === 200) {
-            cache.put(event.request, networkResponse.clone());
+            const url = new URL(event.request.url);
+            if (url.protocol.startsWith('http')) {
+              cache.put(event.request, networkResponse.clone()).catch(() => {});
+            }
           }
           return networkResponse;
-        }).catch(() => {
-          // If network fails (offline), cachedResponse will be returned
         });
-
-        return cachedResponse || fetchedResponse;
       });
     })
   );

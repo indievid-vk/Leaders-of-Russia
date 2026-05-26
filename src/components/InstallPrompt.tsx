@@ -7,11 +7,21 @@ export default function InstallPrompt() {
   const [isInstallable, setIsInstallable] = useState(false); // Can be Desktop or Android
   const [showPrompt, setShowPrompt] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
     // Check if app is already installed
-    if (window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone) {
+    const representsStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
+    setIsStandalone(!!representsStandalone);
+    if (representsStandalone) {
       return;
+    }
+
+    // Try to get early intercepted prompt
+    if ((window as any).deferredPrompt) {
+      console.log('PWA InstallPrompt: using early captured standard prompt');
+      setDeferredPrompt((window as any).deferredPrompt);
+      setIsInstallable(true);
     }
 
     const checkDevice = () => {
@@ -21,7 +31,8 @@ export default function InstallPrompt() {
       
       if (isIOSDevice) {
         setIsIOS(true);
-        if (!localStorage.getItem('pwaPromptDismissed')) {
+        // Only trigger auto-prompt if no other popup active and not dismissed
+        if (!localStorage.getItem('pwaPromptDismissed') && !(window as any).pwaPopupActive) {
           setShowPrompt(true);
         }
       }
@@ -33,10 +44,22 @@ export default function InstallPrompt() {
     const handleBeforeInstallPrompt = (e: Event) => {
       console.log('PWA: beforeinstallprompt event caught');
       e.preventDefault();
+      (window as any).deferredPrompt = e;
       setDeferredPrompt(e);
       setIsInstallable(true);
       
-      if (!localStorage.getItem('pwaPromptDismissed')) {
+      if (!localStorage.getItem('pwaPromptDismissed') && !(window as any).pwaPopupActive) {
+        setShowPrompt(true);
+      }
+    };
+
+    // Custom early intercept listener
+    const handleEarlyPromptReady = (e: any) => {
+      console.log('PWA: early prompt ready event received');
+      const promptEvent = e.detail;
+      setDeferredPrompt(promptEvent);
+      setIsInstallable(true);
+      if (!localStorage.getItem('pwaPromptDismissed') && !(window as any).pwaPopupActive) {
         setShowPrompt(true);
       }
     };
@@ -49,20 +72,70 @@ export default function InstallPrompt() {
       
       if (isIOSDevice) {
         setIsIOS(true);
-      } else if (!deferredPrompt) {
-        setIsInstallable(true);
+      } else {
+        const activePrompt = deferredPrompt || (window as any).deferredPrompt;
+        if (activePrompt) {
+          setDeferredPrompt(activePrompt);
+          setIsInstallable(true);
+        } else {
+          setIsInstallable(true); // fallback UI if not caught
+        }
       }
       setShowPrompt(true);
     };
 
+    // Callback when any popup is closed
+    const handlePopupClosed = () => {
+      if (!(window as any).pwaPopupActive && !localStorage.getItem('pwaPromptDismissed')) {
+        const userAgent = window.navigator.userAgent.toLowerCase();
+        const isIOSDevice = /iphone|ipad|ipod/.test(userAgent) || 
+                            (navigator.maxTouchPoints > 0 && /macintel|macintosh/.test(userAgent));
+        if (isIOSDevice) {
+          setIsIOS(true);
+          setShowPrompt(true);
+        } else {
+          const activePrompt = deferredPrompt || (window as any).deferredPrompt;
+          if (activePrompt) {
+            setDeferredPrompt(activePrompt);
+            setIsInstallable(true);
+            setShowPrompt(true);
+          }
+        }
+      }
+    };
+
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('pwa-deferred-prompt-ready', handleEarlyPromptReady as EventListener);
     window.addEventListener('trigger-pwa-install-prompt', handleTriggerManual);
+    window.addEventListener('pwa-popup-closed', handlePopupClosed);
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('pwa-deferred-prompt-ready', handleEarlyPromptReady as EventListener);
       window.removeEventListener('trigger-pwa-install-prompt', handleTriggerManual);
+      window.removeEventListener('pwa-popup-closed', handlePopupClosed);
     };
   }, [deferredPrompt]);
+
+  // Keep track of window-level state and lock
+  useEffect(() => {
+    if (showPrompt) {
+      if (!(window as any).pwaPopupActive) {
+        (window as any).pwaPopupActive = 'install';
+      }
+    } else {
+      if ((window as any).pwaPopupActive === 'install') {
+        (window as any).pwaPopupActive = null;
+        window.dispatchEvent(new CustomEvent('pwa-popup-closed'));
+      }
+    }
+    return () => {
+      if ((window as any).pwaPopupActive === 'install') {
+        (window as any).pwaPopupActive = null;
+        window.dispatchEvent(new CustomEvent('pwa-popup-closed'));
+      }
+    };
+  }, [showPrompt]);
 
   const handleDismiss = () => {
     setShowPrompt(false);
@@ -70,81 +143,152 @@ export default function InstallPrompt() {
   };
 
   const handleInstall = async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
+    const activePrompt = deferredPrompt || (window as any).deferredPrompt;
+    if (activePrompt) {
+      activePrompt.prompt();
+      const { outcome } = await activePrompt.userChoice;
       if (outcome === 'accepted') {
         setShowPrompt(false);
       }
       setDeferredPrompt(null);
+      (window as any).deferredPrompt = null;
     }
   };
 
-  if (!showPrompt) return null;
-
   return (
-    <AnimatePresence>
-      {showPrompt && (
-        <motion.div
-          initial={{ opacity: 0, y: 100 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 100 }}
-          transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-          className="fixed bottom-0 left-0 right-0 z-50 flex justify-center p-4 sm:p-6 pointer-events-none"
-        >
-          <div className="bg-white rounded-3xl shadow-[0_-8px_30px_rgb(0,0,0,0.12)] border border-slate-100 p-6 w-full max-w-md pointer-events-auto relative">
-            <button 
-              onClick={handleDismiss}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 bg-slate-50 hover:bg-slate-100 p-2 rounded-full transition-colors"
-              aria-label="Закрыть"
-            >
-              <X size={20} />
-            </button>
+    <>
+      {/* Floating Action Button (FAB) for installing the app (Section 3.3) */}
+      <AnimatePresence>
+        {!isStandalone && !showPrompt && (
+          <motion.button
+            id="pwa-install-fab"
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 20 }}
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => setShowPrompt(true)}
+            className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] right-6 z-40 bg-[#c33b3b] hover:bg-[#b03030] text-white rounded-full p-4 shadow-xl shadow-red-950/30 flex items-center justify-center cursor-pointer relative"
+            title="Установить приложение"
+          >
+            <Download size={22} className="stroke-[2.5]" />
+            {/* Elegant glowing accent dot from the reference screenshots */}
+            <span className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-white/45 border border-white/30 shadow-sm animate-pulse" />
+          </motion.button>
+        )}
+      </AnimatePresence>
 
-            <div className="flex flex-col items-center text-center">
-              <div className="bg-blue-600 text-white p-4 rounded-3xl mb-4 shadow-lg shadow-blue-100">
-                <Download size={32} />
+      <AnimatePresence>
+        {showPrompt && (
+          <motion.div
+            id="pwa-install-prompt-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-950/60 backdrop-blur-md pointer-events-auto"
+          >
+            <motion.div 
+              id="pwa-install-prompt-modal"
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white rounded-[36px] shadow-2xl p-8 max-w-sm w-full relative overflow-hidden border border-slate-100 flex flex-col items-center"
+            >
+              <button 
+                onClick={handleDismiss}
+                className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 bg-slate-50 hover:bg-slate-100 p-2 rounded-full transition-colors cursor-pointer"
+                aria-label="Закрыть"
+              >
+                <X size={18} />
+              </button>
+
+              {/* Minimalist Phone icon Badge in peach/orange circle */}
+              <div className="bg-[#FFF4E5] w-24 h-24 rounded-full flex items-center justify-center mb-6 mt-2 border border-[#FFE2BF]/30 shadow-inner">
+                <svg width="28" height="48" viewBox="0 0 28 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="2" y="2" width="24" height="44" rx="5" stroke="#FF7A00" strokeWidth="3" />
+                  <circle cx="14" cy="40" r="2" fill="#FF7A00" />
+                </svg>
               </div>
               
-              <h3 className="text-xl font-bold text-slate-900 mb-2">
-                Установить приложение
+              <h3 className="text-2xl font-bold text-slate-900 tracking-tight font-sans">
+                Установка
               </h3>
               
-              {isInstallable && (
-                <>
-                  <p className="text-slate-600 mb-6 max-w-[280px]">
-                    Установите «Правители России» на экран домой для быстрого доступа и работы без интернета.
-                  </p>
+              <p className="text-slate-500 text-sm text-center max-w-[280px] mt-2 mb-6 leading-relaxed">
+                Добавьте приложение на рабочий стол для мгновенного доступа.
+              </p>
+
+              {isInstallable && !isIOS && (
+                <div className="w-full flex flex-col items-center">
                   <button
                     onClick={handleInstall}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-2xl shadow-lg shadow-blue-200 transition-all active:scale-[0.98]"
+                    className="w-full bg-[#c33b3b] hover:bg-[#b03030] text-white font-bold py-4 px-6 rounded-2xl shadow-lg shadow-red-950/10 transition-all active:scale-[0.98] cursor-pointer text-sm font-sans mb-4"
                   >
                     Установить сейчас
                   </button>
-                </>
+                  <button
+                    onClick={handleDismiss}
+                    className="text-slate-400 hover:text-slate-600 font-sans text-sm font-medium transition-colors cursor-pointer mb-2"
+                  >
+                    Продолжить в браузере
+                  </button>
+                </div>
               )}
 
               {isIOS && (
-                <div className="w-full text-slate-600">
-                  <p className="mb-4">Установите на экран «Домой», чтобы приложение всегда было под рукой.</p>
-                  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-sm text-slate-500 text-left">
-                    <ol className="space-y-3">
-                      <li className="flex items-center gap-3">
-                        <span className="flex items-center justify-center bg-white border border-slate-200 w-6 h-6 rounded-full text-xs font-bold text-blue-600">1</span>
-                        <span>Нажмите кнопку «Поделиться» <Share size={16} className="inline mb-1 text-blue-600" /></span>
+                <div className="w-full flex flex-col items-center">
+                  {/* Styled warm orange manual instructions panel matching screenshot */}
+                  <div className="bg-[#FFFDF9] border border-[#FFEBCE] rounded-[28px] p-5 w-full text-left mb-6">
+                    <h4 className="text-[11px] font-bold text-[#FF7A00] tracking-wider mb-4 font-sans uppercase">
+                      Как установить вручную:
+                    </h4>
+                    <ul className="space-y-4">
+                      <li className="flex items-start gap-3.5">
+                        <span className="flex items-center justify-center bg-[#FFEAD1] text-[#D96300] w-6 h-6 rounded-full text-xs font-bold shrink-0 mt-0.5">1</span>
+                        <span className="text-sm text-slate-700 leading-tight">
+                          Нажмите <strong className="text-slate-800 font-semibold">«Меню»</strong> или <span className="inline-flex items-center justify-center bg-[#E5F1FF] text-[#0066CC] px-1.5 py-0.5 rounded-md mx-1"><Share size={12} className="stroke-[2.5]" /></span> <strong className="text-slate-800 font-semibold">«Поделиться»</strong>
+                        </span>
                       </li>
-                      <li className="flex items-center gap-3">
-                        <span className="flex items-center justify-center bg-white border border-slate-200 w-6 h-6 rounded-full text-xs font-bold text-blue-600">2</span>
-                        <span>Выберите <strong>«На экран "Домой"»</strong></span>
+                      <li className="flex items-start gap-3.5">
+                        <span className="flex items-center justify-center bg-[#FFEAD1] text-[#D96300] w-6 h-6 rounded-full text-xs font-bold shrink-0 mt-0.5">2</span>
+                        <span className="text-sm text-slate-700 leading-tight">
+                          Выберите пункт <strong className="text-slate-800 font-semibold">«На экран "Домой"»</strong> или <strong className="text-slate-800 font-semibold">«Установить»</strong>
+                        </span>
                       </li>
-                    </ol>
+                    </ul>
                   </div>
+
+                  <button
+                    onClick={handleDismiss}
+                    className="text-slate-400 hover:text-slate-600 font-sans text-sm font-medium transition-colors cursor-pointer mb-2"
+                  >
+                    Продолжить в браузере
+                  </button>
                 </div>
               )}
-            </div>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+
+              {!isInstallable && !isIOS && (
+                <div className="w-full flex flex-col items-center">
+                  <div className="bg-[#FFFDF9] border border-[#FFEBCE] rounded-[28px] p-5 w-full text-left mb-6">
+                    <h4 className="text-[11px] font-bold text-[#FF7A00] tracking-wider mb-4 font-sans uppercase">
+                      Инструкция по установке:
+                    </h4>
+                    <p className="text-sm text-slate-600 leading-relaxed mb-1">
+                      Откройте меню настроек вашего браузера (обычно три точки <strong className="text-slate-800 font-semibold">⋮</strong> в верхнем правом углу) и выберите <strong className="text-slate-800 font-semibold">«Установить приложение»</strong> или <strong className="text-slate-800 font-semibold">«Добавить на главный экран»</strong>.
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleDismiss}
+                    className="text-slate-400 hover:text-slate-600 font-sans text-sm font-medium transition-colors cursor-pointer mb-2"
+                  >
+                    Продолжить в браузере
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

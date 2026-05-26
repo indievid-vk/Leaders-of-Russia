@@ -41,7 +41,20 @@ export default function UpdatePrompt() {
       });
     }, 5 * 60 * 1000);
 
-    // 4. Handle controller change (automatic reload)
+    // 4. Visibilitychange Listener to check for updates when browser re-enters foreground (Section 9.2)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        navigator.serviceWorker.getRegistration().then(reg => {
+          if (reg) {
+            reg.update();
+            console.log('SW: Active visibilitycheck triggered registration.update()');
+          }
+        });
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // 5. Handle controller change (automatic reload)
     const handleControllerChange = () => {
       window.location.reload();
     };
@@ -49,9 +62,27 @@ export default function UpdatePrompt() {
 
     return () => {
       clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       navigator.serviceWorker.removeEventListener('controllerchange', handleControllerChange);
     };
   }, []);
+
+  useEffect(() => {
+    if (show) {
+      (window as any).pwaPopupActive = 'update';
+    } else {
+      if ((window as any).pwaPopupActive === 'update') {
+        (window as any).pwaPopupActive = null;
+        window.dispatchEvent(new CustomEvent('pwa-popup-closed'));
+      }
+    }
+    return () => {
+      if ((window as any).pwaPopupActive === 'update') {
+        (window as any).pwaPopupActive = null;
+        window.dispatchEvent(new CustomEvent('pwa-popup-closed'));
+      }
+    };
+  }, [show]);
 
   const handleUpdate = () => {
     if (waitingWorker) {
@@ -63,12 +94,16 @@ export default function UpdatePrompt() {
     <AnimatePresence>
       {show && (
         <motion.div
+          id="pwa-update-prompt-overlay"
           initial={{ opacity: 0, y: 100, scale: 0.9 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 50, scale: 0.9 }}
           className="fixed bottom-0 left-0 right-0 z-[60] flex justify-center p-4 sm:p-6 pointer-events-none"
         >
-          <div className="bg-slate-900 text-white p-6 rounded-3xl shadow-2xl flex flex-col gap-6 w-full max-w-md pointer-events-auto border border-slate-700/50 backdrop-blur-xl">
+          <div 
+            id="pwa-update-prompt-modal"
+            className="bg-slate-900 text-white p-6 rounded-3xl shadow-2xl flex flex-col gap-6 w-full max-w-md pointer-events-auto border border-slate-700/50 backdrop-blur-xl"
+          >
             <div className="flex items-start gap-4">
               <div className="bg-blue-500 text-white p-3 rounded-2xl shadow-lg shadow-blue-500/20 shrink-0">
                 <RefreshCw size={28} className="animate-spin-slow" />

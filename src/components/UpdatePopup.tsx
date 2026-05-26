@@ -19,6 +19,23 @@ export default function UpdatePopup() {
     }
   }, []);
 
+  useEffect(() => {
+    if (show) {
+      (window as any).pwaPopupActive = 'update';
+    } else {
+      if ((window as any).pwaPopupActive === 'update') {
+        (window as any).pwaPopupActive = null;
+        window.dispatchEvent(new CustomEvent('pwa-popup-closed'));
+      }
+    }
+    return () => {
+      if ((window as any).pwaPopupActive === 'update') {
+        (window as any).pwaPopupActive = null;
+        window.dispatchEvent(new CustomEvent('pwa-popup-closed'));
+      }
+    };
+  }, [show]);
+
   const handleDismiss = () => {
     localStorage.setItem('appVersion', CURRENT_VERSION);
     setShow(false);
@@ -28,12 +45,14 @@ export default function UpdatePopup() {
     <AnimatePresence>
       {show && (
         <motion.div
+          id="pwa-update-popup-overlay"
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-sm"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-sm shadow-2xl"
         >
           <motion.div 
+            id="pwa-update-popup-modal"
             className="bg-white rounded-[32px] shadow-2xl p-8 max-w-sm w-full relative overflow-hidden border border-slate-100"
             layoutId="update-modal"
           >
