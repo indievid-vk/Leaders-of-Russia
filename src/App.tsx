@@ -5,6 +5,7 @@ import Flashcard, { RulerData } from './components/Flashcard';
 import Timeline from './components/Timeline';
 import InstallPrompt from './components/InstallPrompt';
 import UpdatePrompt from './components/UpdatePrompt';
+import WelcomePrompt from './components/WelcomePrompt';
 import AboutPage from './components/AboutPage';
 import rulersDataRaw from './lib/rulers.json';
 import { saveProgress, getAllProgress, resetProgress } from './lib/db';
@@ -116,6 +117,7 @@ export default function App() {
       <>
         <AboutPage onBack={() => setShowAbout(false)} />
         <InstallPrompt />
+        <WelcomePrompt />
       </>
     );
   }
@@ -126,6 +128,7 @@ export default function App() {
         <Timeline rulers={rulersData} onBack={() => setShowTimeline(false)} onShowAbout={() => setShowAbout(true)} />
         <InstallPrompt />
         <UpdatePrompt />
+        <WelcomePrompt />
       </>
     );
   }
@@ -135,6 +138,7 @@ export default function App() {
       <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800 items-center justify-center p-6 relative">
         <UpdatePrompt />
         <InstallPrompt />
+        <WelcomePrompt />
         
         <button 
           onClick={() => setShowAbout(true)}
@@ -318,6 +322,7 @@ export default function App() {
       </main>
       <InstallPrompt />
       <UpdatePrompt />
+      <WelcomePrompt />
     </div>
   );
 }

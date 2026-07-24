@@ -1,12 +1,22 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { RefreshCw, X } from 'lucide-react';
+import { RefreshCw, Sparkles } from 'lucide-react';
+
+const CURRENT_APP_VERSION = '1.0.2';
 
 export default function UpdatePrompt() {
   const [show, setShow] = useState(false);
   const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
 
   useEffect(() => {
+    // 1. Check if app was recently updated on server and reloaded
+    const storedVersion = localStorage.getItem('pwa_app_version');
+    if (storedVersion && storedVersion !== CURRENT_APP_VERSION) {
+      setShow(true);
+    } else if (!storedVersion) {
+      localStorage.setItem('pwa_app_version', CURRENT_APP_VERSION);
+    }
+
     if (!('serviceWorker' in navigator)) return;
 
     const onUpdateFound = (reg: ServiceWorkerRegistration) => {
@@ -21,40 +31,37 @@ export default function UpdatePrompt() {
       }
     };
 
-    navigator.serviceWorker.getRegistration().then(reg => {
+    navigator.serviceWorker.getRegistration().then((reg) => {
       if (!reg) return;
 
-      // 1. Check if there's already a waiting worker
       if (reg.waiting) {
         setWaitingWorker(reg.waiting);
         setShow(true);
       }
 
-      // 2. Listen for future updates
       reg.addEventListener('updatefound', () => onUpdateFound(reg));
-    });
+    }).catch(() => {});
 
-    // 3. Periodic check for updates (every 5 minutes)
+    // Periodic SW update check (only if online)
     const interval = setInterval(() => {
-      navigator.serviceWorker.getRegistration().then(reg => {
-        if (reg) reg.update();
-      });
+      if (navigator.onLine && 'serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistration().then((reg) => {
+          if (reg) reg.update().catch(() => {});
+        }).catch(() => {});
+      }
     }, 5 * 60 * 1000);
 
-    // 4. Visibilitychange Listener to check for updates when browser re-enters foreground (Section 9.2)
+    // Active visibility check on return to app
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        navigator.serviceWorker.getRegistration().then(reg => {
-          if (reg) {
-            reg.update();
-            console.log('SW: Active visibilitycheck triggered registration.update()');
-          }
-        });
+      if (document.visibilityState === 'visible' && navigator.onLine) {
+        navigator.serviceWorker.getRegistration().then((reg) => {
+          if (reg) reg.update().catch(() => {});
+        }).catch(() => {});
       }
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
-    // 5. Handle controller change (automatic reload)
+    // Controller change triggers automatic reload
     const handleControllerChange = () => {
       window.location.reload();
     };
@@ -84,9 +91,12 @@ export default function UpdatePrompt() {
     };
   }, [show]);
 
-  const handleUpdate = () => {
+  const handleStart = () => {
+    localStorage.setItem('pwa_app_version', CURRENT_APP_VERSION);
     if (waitingWorker) {
       waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+    } else {
+      setShow(false);
     }
   };
 
@@ -94,50 +104,42 @@ export default function UpdatePrompt() {
     <AnimatePresence>
       {show && (
         <motion.div
-          id="pwa-update-prompt-overlay"
-          initial={{ opacity: 0, y: 100, scale: 0.9 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 50, scale: 0.9 }}
-          className="fixed bottom-0 left-0 right-0 z-[60] flex justify-center p-4 sm:p-6 pointer-events-none"
+          id="pwa-update-modal-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[80] flex items-center justify-center p-6 bg-slate-950/60 backdrop-blur-md pointer-events-auto"
         >
-          <div 
-            id="pwa-update-prompt-modal"
-            className="bg-slate-900 text-white p-6 rounded-3xl shadow-2xl flex flex-col gap-6 w-full max-w-md pointer-events-auto border border-slate-700/50 backdrop-blur-xl"
+          <motion.div
+            id="pwa-update-modal"
+            initial={{ scale: 0.85, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            exit={{ scale: 0.85, y: 20 }}
+            className="bg-white rounded-[36px] shadow-2xl p-8 max-w-sm w-full relative overflow-hidden border border-slate-100 flex flex-col items-center text-center"
           >
-            <div className="flex items-start gap-4">
-              <div className="bg-blue-500 text-white p-3 rounded-2xl shadow-lg shadow-blue-500/20 shrink-0">
-                <RefreshCw size={28} className="animate-spin-slow" />
+            {/* Update Badge */}
+            <div className="bg-blue-50 w-24 h-24 rounded-full flex items-center justify-center mb-6 mt-2 border border-blue-100 shadow-inner relative">
+              <RefreshCw size={44} className="text-blue-600 stroke-[2.2]" />
+              <div className="absolute -top-1 -right-1 bg-blue-600 text-white p-1.5 rounded-full shadow-md">
+                <Sparkles size={16} />
               </div>
-              <div className="flex-1">
-                <h3 className="text-lg font-bold text-white mb-1">Приложение обновилось</h3>
-                <p className="text-slate-400 text-sm leading-relaxed">
-                  Мы добавили новые функции и улучшили работу приложения. Обновите страницу, чтобы применить изменения.
-                </p>
-              </div>
-              <button 
-                onClick={() => setShow(false)}
-                className="p-1 text-slate-500 hover:text-white transition-colors"
-                aria-label="Закрыть"
-              >
-                <X size={20} />
-              </button>
             </div>
-            
-            <div className="flex gap-3">
-              <button
-                onClick={handleUpdate}
-                className="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-3.5 px-6 rounded-2xl font-bold transition-all shadow-lg shadow-blue-900/20 active:scale-[0.98]"
-              >
-                Обновить сейчас
-              </button>
-              <button 
-                onClick={() => setShow(false)}
-                className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-3.5 px-6 rounded-2xl font-bold transition-all active:scale-[0.98]"
-              >
-                Понятно
-              </button>
-            </div>
-          </div>
+
+            <h3 className="text-2xl font-bold text-slate-900 tracking-tight font-sans mb-3">
+              Приложение обновилось!
+            </h3>
+
+            <p className="text-slate-600 text-base font-medium leading-relaxed mb-8 max-w-[280px]">
+              Пользоваться стало еще удобнее
+            </p>
+
+            <button
+              onClick={handleStart}
+              className="w-full bg-[#c33b3b] hover:bg-[#b03030] text-white font-bold py-4 px-6 rounded-2xl shadow-lg shadow-red-950/20 transition-all active:scale-[0.98] cursor-pointer text-base font-sans"
+            >
+              Начать
+            </button>
+          </motion.div>
         </motion.div>
       )}
     </AnimatePresence>

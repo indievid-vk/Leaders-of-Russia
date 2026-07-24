@@ -11,13 +11,24 @@ export default function InstallPrompt() {
 
   useEffect(() => {
     // Check if app is already installed
-    const representsStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
+    const representsStandalone = 
+      window.matchMedia('(display-mode: standalone)').matches || 
+      (window.navigator as any).standalone;
+
     setIsStandalone(!!representsStandalone);
     if (representsStandalone) {
       return;
     }
 
-    // Try to get early intercepted prompt
+    // Listen for native appinstalled event
+    const handleAppInstalled = () => {
+      console.log('PWA: App successfully installed');
+      localStorage.setItem('pwa_just_installed', 'true');
+      setShowPrompt(false);
+    };
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    // Try to get early intercepted prompt from index.html
     if ((window as any).deferredPrompt) {
       console.log('PWA InstallPrompt: using early captured standard prompt');
       setDeferredPrompt((window as any).deferredPrompt);
@@ -78,7 +89,7 @@ export default function InstallPrompt() {
           setDeferredPrompt(activePrompt);
           setIsInstallable(true);
         } else {
-          setIsInstallable(true); // fallback UI if not caught
+          setIsInstallable(false); // Show manual Android instructions fallback
         }
       }
       setShowPrompt(true);
@@ -110,6 +121,7 @@ export default function InstallPrompt() {
     window.addEventListener('pwa-popup-closed', handlePopupClosed);
 
     return () => {
+      window.removeEventListener('appinstalled', handleAppInstalled);
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('pwa-deferred-prompt-ready', handleEarlyPromptReady as EventListener);
       window.removeEventListener('trigger-pwa-install-prompt', handleTriggerManual);
@@ -148,6 +160,7 @@ export default function InstallPrompt() {
       activePrompt.prompt();
       const { outcome } = await activePrompt.userChoice;
       if (outcome === 'accepted') {
+        localStorage.setItem('pwa_just_installed', 'true');
         setShowPrompt(false);
       }
       setDeferredPrompt(null);
@@ -157,7 +170,7 @@ export default function InstallPrompt() {
 
   return (
     <>
-      {/* Floating Action Button (FAB) for installing the app (Section 3.3) */}
+      {/* Floating Action Button (FAB) for installing the app */}
       <AnimatePresence>
         {!isStandalone && !showPrompt && (
           <motion.button
@@ -172,7 +185,6 @@ export default function InstallPrompt() {
             title="Установить приложение"
           >
             <Download size={22} className="stroke-[2.5]" />
-            {/* Elegant glowing accent dot from the reference screenshots */}
             <span className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-white/45 border border-white/30 shadow-sm animate-pulse" />
           </motion.button>
         )}
@@ -202,7 +214,7 @@ export default function InstallPrompt() {
                 <X size={18} />
               </button>
 
-              {/* Minimalist Phone icon Badge in peach/orange circle */}
+              {/* Minimalist Phone icon Badge */}
               <div className="bg-[#FFF4E5] w-24 h-24 rounded-full flex items-center justify-center mb-6 mt-2 border border-[#FFE2BF]/30 shadow-inner">
                 <svg width="28" height="48" viewBox="0 0 28 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <rect x="2" y="2" width="24" height="44" rx="5" stroke="#FF7A00" strokeWidth="3" />
@@ -218,6 +230,7 @@ export default function InstallPrompt() {
                 Добавьте приложение на рабочий стол для мгновенного доступа.
               </p>
 
+              {/* Android/Desktop with Native prompt */}
               {isInstallable && !isIOS && (
                 <div className="w-full flex flex-col items-center">
                   <button
@@ -235,12 +248,12 @@ export default function InstallPrompt() {
                 </div>
               )}
 
+              {/* iOS Manual instructions */}
               {isIOS && (
                 <div className="w-full flex flex-col items-center">
-                  {/* Styled warm orange manual instructions panel matching screenshot */}
                   <div className="bg-[#FFFDF9] border border-[#FFEBCE] rounded-[28px] p-5 w-full text-left mb-6">
                     <h4 className="text-[11px] font-bold text-[#FF7A00] tracking-wider mb-4 font-sans uppercase">
-                      Как установить вручную:
+                      Как установить на iOS (iPhone/iPad):
                     </h4>
                     <ul className="space-y-4">
                       <li className="flex items-start gap-3.5">
@@ -267,11 +280,12 @@ export default function InstallPrompt() {
                 </div>
               )}
 
+              {/* Android / Desktop fallback if native prompt is not available */}
               {!isInstallable && !isIOS && (
                 <div className="w-full flex flex-col items-center">
                   <div className="bg-[#FFFDF9] border border-[#FFEBCE] rounded-[28px] p-5 w-full text-left mb-6">
                     <h4 className="text-[11px] font-bold text-[#FF7A00] tracking-wider mb-4 font-sans uppercase">
-                      Инструкция по установке:
+                      Инструкция по установке на Android:
                     </h4>
                     <p className="text-sm text-slate-600 leading-relaxed mb-1">
                       Откройте меню настроек вашего браузера (обычно три точки <strong className="text-slate-800 font-semibold">⋮</strong> в верхнем правом углу) и выберите <strong className="text-slate-800 font-semibold">«Установить приложение»</strong> или <strong className="text-slate-800 font-semibold">«Добавить на главный экран»</strong>.

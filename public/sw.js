@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rulers-pwa-v5';
+const CACHE_NAME = 'rulers-pwa-v6';
 const PRECACHE_URLS = [
   './',
   'index.html',
@@ -7,7 +7,7 @@ const PRECACHE_URLS = [
   'icon-512.webp'
 ];
 
-// Pre-cache static assets
+// Pre-cache static assets on install
 self.addEventListener('install', (event) => {
   console.log('SW: Install event');
   event.waitUntil(
@@ -17,7 +17,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Clean up old caches
+// Clean up old caches on activate
 self.addEventListener('activate', (event) => {
   console.log('SW: Activate event');
   event.waitUntil(
@@ -34,11 +34,11 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Stale-While-Revalidate Strategy for offline work
+// Offline & Stale-While-Revalidate Fetch Handler
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
-  // Handle SPA navigation routing gracefully in offline mode
+  // Handle SPA navigation routing gracefully when offline
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request).catch(() => {
@@ -50,11 +50,13 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Stale-While-Revalidate for all assets
   event.respondWith(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.match(event.request).then((cachedResponse) => {
         if (cachedResponse) {
-          // Stale-While-Revalidate: serve from cache but update in background if online
+          // Serve from cache immediately for speed and offline availability
+          // Attempt background revalidation ONLY if network is likely available
           fetch(event.request).then((networkResponse) => {
             if (networkResponse && networkResponse.status === 200) {
               const url = new URL(event.request.url);
@@ -63,12 +65,12 @@ self.addEventListener('fetch', (event) => {
               }
             }
           }).catch(() => {
-            // Silently swallow errors (e.g., when offline)
+            // Silently swallow fetch errors when offline
           });
           return cachedResponse;
         }
 
-        // Cache miss: must fetch from network and cache
+        // Cache miss: fetch from network and store in cache
         return fetch(event.request).then((networkResponse) => {
           if (networkResponse && networkResponse.status === 200) {
             const url = new URL(event.request.url);
@@ -77,13 +79,19 @@ self.addEventListener('fetch', (event) => {
             }
           }
           return networkResponse;
+        }).catch(() => {
+          // If fetch fails and nothing in cache for this sub-resource, fallback gracefully
+          return new Response('Offline content not cached', {
+            status: 503,
+            statusText: 'Service Unavailable'
+          });
         });
       });
     })
   );
 });
 
-// Handle SKIP_WAITING from UI
+// Handle SKIP_WAITING message from UI
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
