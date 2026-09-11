@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <title>Правители России</title>
-    <meta name="description" content="Изучение истории правителей России в формате карточек" />
+    <title>История. Подготовка</title>
+    <meta name="description" content="Интерактивный помощник для подготовки к ЕГЭ по истории: хронология и карточки правителей, все ключевые даты с 862 года, терминологический словарь, архитектура и памятники, наглядные схемы управления." />
+    <meta property="og:title" content="История. Подготовка" />
+    <meta property="og:description" content="Интерактивный помощник для подготовки к ЕГЭ по истории: хронология и карточки правителей, все ключевые даты с 862 года, терминологический словарь, архитектура и памятники, наглядные схемы управления." />
     <meta name="theme-color" content="#2563eb" />
     <link rel="apple-touch-icon" href="icon-192.webp">
     <link rel="manifest" href="manifest.json" />
@@ -14,11 +16,16 @@
       // Early PWA installation prompt interceptor
       window.deferredPrompt = null;
       window.addEventListener('beforeinstallprompt', (e) => {
-        console.log('Early index.html PWA: beforeinstallprompt caught and saved');
         e.preventDefault();
         window.deferredPrompt = e;
-        // Notify any active components that might have loaded or are loading
+        window.dispatchEvent(new CustomEvent('pwa-prompt-available'));
         window.dispatchEvent(new CustomEvent('pwa-deferred-prompt-ready', { detail: e }));
+      });
+      
+      window.addEventListener('appinstalled', () => {
+        window.deferredPrompt = null;
+        localStorage.setItem('pwaPromptedForever_v1', 'true');
+        localStorage.setItem('pwa_just_installed', 'true');
       });
     </script>
   </head>

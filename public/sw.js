@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rulers-pwa-v6';
+const CACHE_NAME = 'rulers-pwa-v7';
 const PRECACHE_URLS = [
   './',
   'index.html',
@@ -37,6 +37,12 @@ self.addEventListener('activate', (event) => {
 // Offline & Stale-While-Revalidate Fetch Handler
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+
+  // Let network directly handle heavy binary PDFs and Web Workers
+  const reqUrl = event.request.url || '';
+  if (reqUrl.includes('.pdf') || reqUrl.includes('pdf.worker')) {
+    return;
+  }
 
   // Handle SPA navigation routing gracefully when offline
   if (event.request.mode === 'navigate') {

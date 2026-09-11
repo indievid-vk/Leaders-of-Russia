@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
 import { ChevronLeft, Calendar, History, Info } from 'lucide-react';
 import { RulerData } from './Flashcard';
+import BackToTopButton from './BackToTopButton';
 
 interface TimelineProps {
   rulers: RulerData[];
@@ -10,33 +11,35 @@ interface TimelineProps {
 
 export default function Timeline({ rulers, onBack, onShowAbout }: TimelineProps) {
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800">
+    <div id="timeline-container" className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-slate-200 px-4 sm:px-6 py-4 flex items-center justify-between sticky top-0 z-20">
+      <header id="timeline-header" className="bg-white shadow-sm border-b border-slate-200 px-4 sm:px-6 py-4 flex items-center justify-between sticky top-0 z-20">
         <div className="flex items-center gap-4">
           <button 
             onClick={onBack}
-            className="p-2 hover:bg-slate-100 rounded-xl transition-colors text-slate-600"
+            className="p-2 hover:bg-slate-100 rounded-xl transition-colors text-slate-600 cursor-pointer active:scale-95"
+            aria-label="Назад"
           >
             <ChevronLeft size={24} />
           </button>
           <div>
-            <h1 className="text-xl font-bold">Хронология</h1>
+            <h1 className="text-xl font-bold text-slate-900">Хронология</h1>
             <p className="text-[10px] text-slate-500 uppercase tracking-wider font-medium font-mono truncate">История России</p>
           </div>
         </div>
 
         <button 
           onClick={onShowAbout}
-          className="p-2 hover:bg-slate-100 rounded-xl transition-colors text-slate-500 hover:text-blue-600"
+          className="p-2.5 bg-slate-50 hover:bg-blue-50 text-slate-500 hover:text-blue-600 rounded-2xl border border-slate-200/80 transition-all cursor-pointer active:scale-95"
           title="О приложении"
+          aria-label="О приложении"
         >
-          <Info size={24} />
+          <Info size={20} className="stroke-[2.2]" />
         </button>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6">
+      <main id="timeline-main" className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 pb-24">
         <div className="relative border-l-2 border-blue-200 ml-4 py-8 space-y-12">
           {rulers.map((ruler, index) => (
             <motion.div 
@@ -94,16 +97,8 @@ export default function Timeline({ rulers, onBack, onShowAbout }: TimelineProps)
         </div>
       </main>
 
-      {/* Footer / Floating Button */}
-      <div className="fixed bottom-6 right-6">
-        <button 
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="bg-white text-blue-600 p-4 rounded-2xl shadow-lg border border-slate-200 hover:bg-blue-50 transition-colors"
-          title="Наверх"
-        >
-          <ChevronLeft size={24} className="rotate-90" />
-        </button>
-      </div>
+      {/* Floating Back to Top */}
+      <BackToTopButton threshold={200} />
     </div>
   );
 }

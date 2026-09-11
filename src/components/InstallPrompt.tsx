@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Download, X, Share } from 'lucide-react';
+import { Download, X, Share, Smartphone } from 'lucide-react';
 
 export default function InstallPrompt() {
   const [isIOS, setIsIOS] = useState(false);
-  const [isInstallable, setIsInstallable] = useState(false); // Can be Desktop or Android
+  const [isInstallable, setIsInstallable] = useState(false);
   const [showPrompt, setShowPrompt] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isStandalone, setIsStandalone] = useState(false);
@@ -13,7 +13,9 @@ export default function InstallPrompt() {
     // Check if app is already installed
     const representsStandalone = 
       window.matchMedia('(display-mode: standalone)').matches || 
-      (window.navigator as any).standalone;
+      (window.navigator as any).standalone ||
+      document.referrer.includes('android-app://') ||
+      window.location.search.includes('mode=standalone');
 
     setIsStandalone(!!representsStandalone);
     if (representsStandalone) {
@@ -23,6 +25,7 @@ export default function InstallPrompt() {
     // Listen for native appinstalled event
     const handleAppInstalled = () => {
       console.log('PWA: App successfully installed');
+      localStorage.setItem('pwaPromptedForever_v1', 'true');
       localStorage.setItem('pwa_just_installed', 'true');
       setShowPrompt(false);
     };
@@ -30,7 +33,6 @@ export default function InstallPrompt() {
 
     // Try to get early intercepted prompt from index.html
     if ((window as any).deferredPrompt) {
-      console.log('PWA InstallPrompt: using early captured standard prompt');
       setDeferredPrompt((window as any).deferredPrompt);
       setIsInstallable(true);
     }
@@ -42,7 +44,6 @@ export default function InstallPrompt() {
       
       if (isIOSDevice) {
         setIsIOS(true);
-        // Only trigger auto-prompt if no other popup active and not dismissed
         if (!localStorage.getItem('pwaPromptDismissed') && !(window as any).pwaPopupActive) {
           setShowPrompt(true);
         }
@@ -53,7 +54,6 @@ export default function InstallPrompt() {
     
     // Catch standard install prompt (Android, Desktop Chrome/Edge)
     const handleBeforeInstallPrompt = (e: Event) => {
-      console.log('PWA: beforeinstallprompt event caught');
       e.preventDefault();
       (window as any).deferredPrompt = e;
       setDeferredPrompt(e);
@@ -66,7 +66,6 @@ export default function InstallPrompt() {
 
     // Custom early intercept listener
     const handleEarlyPromptReady = (e: any) => {
-      console.log('PWA: early prompt ready event received');
       const promptEvent = e.detail;
       setDeferredPrompt(promptEvent);
       setIsInstallable(true);
@@ -89,7 +88,7 @@ export default function InstallPrompt() {
           setDeferredPrompt(activePrompt);
           setIsInstallable(true);
         } else {
-          setIsInstallable(false); // Show manual Android instructions fallback
+          setIsInstallable(false);
         }
       }
       setShowPrompt(true);
@@ -116,6 +115,7 @@ export default function InstallPrompt() {
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('pwa-prompt-available', handleEarlyPromptReady as EventListener);
     window.addEventListener('pwa-deferred-prompt-ready', handleEarlyPromptReady as EventListener);
     window.addEventListener('trigger-pwa-install-prompt', handleTriggerManual);
     window.addEventListener('pwa-popup-closed', handlePopupClosed);
@@ -123,6 +123,7 @@ export default function InstallPrompt() {
     return () => {
       window.removeEventListener('appinstalled', handleAppInstalled);
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('pwa-prompt-available', handleEarlyPromptReady as EventListener);
       window.removeEventListener('pwa-deferred-prompt-ready', handleEarlyPromptReady as EventListener);
       window.removeEventListener('trigger-pwa-install-prompt', handleTriggerManual);
       window.removeEventListener('pwa-popup-closed', handlePopupClosed);
@@ -160,6 +161,7 @@ export default function InstallPrompt() {
       activePrompt.prompt();
       const { outcome } = await activePrompt.userChoice;
       if (outcome === 'accepted') {
+        localStorage.setItem('pwaPromptedForever_v1', 'true');
         localStorage.setItem('pwa_just_installed', 'true');
         setShowPrompt(false);
       }
@@ -170,7 +172,7 @@ export default function InstallPrompt() {
 
   return (
     <>
-      {/* Floating Action Button (FAB) for installing the app */}
+      {/* Floating Action Button (FAB) for installing the app - round in bottom right corner */}
       <AnimatePresence>
         {!isStandalone && !showPrompt && (
           <motion.button
@@ -178,14 +180,15 @@ export default function InstallPrompt() {
             initial={{ opacity: 0, scale: 0.8, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 20 }}
-            whileHover={{ scale: 1.1, rotate: 5 }}
+            whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={() => setShowPrompt(true)}
-            className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] right-6 z-40 bg-[#c33b3b] hover:bg-[#b03030] text-white rounded-full p-4 shadow-xl shadow-red-950/30 flex items-center justify-center cursor-pointer relative"
+            className="fixed bottom-6 right-6 z-40 bg-[#c33b3b] hover:bg-[#b03030] text-white rounded-full p-4 shadow-xl shadow-red-950/35 flex items-center justify-center cursor-pointer border border-white/20 transition-all active:scale-90"
             title="Установить приложение"
+            aria-label="Установить приложение"
           >
             <Download size={22} className="stroke-[2.5]" />
-            <span className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-white/45 border border-white/30 shadow-sm animate-pulse" />
+            <span className="absolute top-1 right-1 w-3 h-3 rounded-full bg-amber-300 border-2 border-[#c33b3b]" />
           </motion.button>
         )}
       </AnimatePresence>
@@ -214,12 +217,9 @@ export default function InstallPrompt() {
                 <X size={18} />
               </button>
 
-              {/* Minimalist Phone icon Badge */}
-              <div className="bg-[#FFF4E5] w-24 h-24 rounded-full flex items-center justify-center mb-6 mt-2 border border-[#FFE2BF]/30 shadow-inner">
-                <svg width="28" height="48" viewBox="0 0 28 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect x="2" y="2" width="24" height="44" rx="5" stroke="#FF7A00" strokeWidth="3" />
-                  <circle cx="14" cy="40" r="2" fill="#FF7A00" />
-                </svg>
+              {/* Phone icon Badge */}
+              <div className="bg-[#FFF4E5] w-24 h-24 rounded-full flex items-center justify-center mb-6 mt-2 border border-[#FFE2BF]/40 shadow-inner">
+                <Smartphone size={40} className="text-[#FF7A00] stroke-[2]" />
               </div>
               
               <h3 className="text-2xl font-bold text-slate-900 tracking-tight font-sans">
@@ -227,7 +227,7 @@ export default function InstallPrompt() {
               </h3>
               
               <p className="text-slate-500 text-sm text-center max-w-[280px] mt-2 mb-6 leading-relaxed">
-                Добавьте приложение на рабочий стол для мгновенного доступа.
+                Добавьте приложение на рабочий стол для мгновенного доступа и работы офлайн.
               </p>
 
               {/* Android/Desktop with Native prompt */}
@@ -259,13 +259,13 @@ export default function InstallPrompt() {
                       <li className="flex items-start gap-3.5">
                         <span className="flex items-center justify-center bg-[#FFEAD1] text-[#D96300] w-6 h-6 rounded-full text-xs font-bold shrink-0 mt-0.5">1</span>
                         <span className="text-sm text-slate-700 leading-tight">
-                          Нажмите <strong className="text-slate-800 font-semibold">«Меню»</strong> или <span className="inline-flex items-center justify-center bg-[#E5F1FF] text-[#0066CC] px-1.5 py-0.5 rounded-md mx-1"><Share size={12} className="stroke-[2.5]" /></span> <strong className="text-slate-800 font-semibold">«Поделиться»</strong>
+                          Нажмите <strong className="text-slate-800 font-semibold">«Меню»</strong> или <span className="inline-flex items-center justify-center bg-[#E5F1FF] text-[#0066CC] px-1.5 py-0.5 rounded-md mx-1"><Share size={12} className="stroke-[2.5]" /></span> <strong className="text-slate-800 font-semibold">«Поделиться»</strong> в Safari
                         </span>
                       </li>
                       <li className="flex items-start gap-3.5">
                         <span className="flex items-center justify-center bg-[#FFEAD1] text-[#D96300] w-6 h-6 rounded-full text-xs font-bold shrink-0 mt-0.5">2</span>
                         <span className="text-sm text-slate-700 leading-tight">
-                          Выберите пункт <strong className="text-slate-800 font-semibold">«На экран "Домой"»</strong> или <strong className="text-slate-800 font-semibold">«Установить»</strong>
+                          Выберите пункт <strong className="text-slate-800 font-semibold">«На экран "Домой"»</strong> (Add to Home Screen)
                         </span>
                       </li>
                     </ul>

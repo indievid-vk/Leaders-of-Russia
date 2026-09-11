@@ -12,6 +12,7 @@
     "skipLibCheck": true,
     "moduleResolution": "bundler",
     "isolatedModules": true,
+    "resolveJsonModule": true,
     "moduleDetection": "force",
     "allowJs": true,
     "jsx": "react-jsx",
@@ -22,5 +23,7 @@
     },
     "allowImportingTsExtensions": true,
     "noEmit": true
-  }
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
 }

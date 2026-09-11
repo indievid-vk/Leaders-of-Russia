@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CheckCircle2, Sparkles } from 'lucide-react';
+import confetti from 'canvas-confetti';
 
 export default function WelcomePrompt() {
   const [show, setShow] = useState(false);
@@ -11,15 +12,28 @@ export default function WelcomePrompt() {
       window.matchMedia('(display-mode: standalone)').matches || 
       (window.navigator as any).standalone || 
       document.referrer.includes('android-app://') ||
+      window.location.search.includes('mode=standalone') ||
       localStorage.getItem('pwa_just_installed') === 'true';
 
-    const alreadyWelcomed = localStorage.getItem('pwa_welcome_shown');
+    const alreadyWelcomed = 
+      localStorage.getItem('hasSeenWelcome') || 
+      localStorage.getItem('installed_welcome_shown') || 
+      localStorage.getItem('pwa_welcome_shown');
 
     // ONLY show in installed standalone app AND ONLY ONCE right after install
     if (isStandalone && !alreadyWelcomed) {
       const timer = setTimeout(() => {
         if (!(window as any).pwaPopupActive) {
           setShow(true);
+          try {
+            confetti({
+              particleCount: 80,
+              spread: 70,
+              origin: { y: 0.6 }
+            });
+          } catch (e) {
+            console.warn('Confetti error:', e);
+          }
         }
       }, 400);
       return () => clearTimeout(timer);
@@ -44,6 +58,8 @@ export default function WelcomePrompt() {
   }, [show]);
 
   const handleStart = () => {
+    localStorage.setItem('hasSeenWelcome', 'true');
+    localStorage.setItem('installed_welcome_shown', 'true');
     localStorage.setItem('pwa_welcome_shown', 'true');
     localStorage.removeItem('pwa_just_installed');
     setShow(false);

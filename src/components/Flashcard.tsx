@@ -6,8 +6,10 @@ export interface RulerData {
   era: string;
   name: string;
   years: string;
-  url: string | null;
+  url?: string | null;
   events?: string[];
+  dynasty?: string;
+  egeNote?: string;
 }
 
 export default function Flashcard({ ruler, isDetailsFirst }: { ruler: RulerData; isDetailsFirst?: boolean }) {
