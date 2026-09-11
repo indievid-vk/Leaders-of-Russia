@@ -15,7 +15,10 @@ if (
 // Fix relative paths for manifest and icons on GitHub Pages without trailing slash
 const baseUrl = import.meta.env.BASE_URL || './';
 document.querySelector('link[rel="manifest"]')?.setAttribute('href', `${baseUrl}manifest.json`);
-document.querySelector('link[rel="apple-touch-icon"]')?.setAttribute('href', `${baseUrl}icon-192.webp`);
+document.querySelector('link[rel="apple-touch-icon"]')?.setAttribute('href', `${baseUrl}apple-touch-icon.png`);
+document.querySelector('link[rel="icon"][type="image/x-icon"]')?.setAttribute('href', `${baseUrl}favicon.ico`);
+document.querySelector('link[rel="icon"][sizes="32x32"]')?.setAttribute('href', `${baseUrl}favicon.png`);
+document.querySelector('link[rel="icon"][sizes="192x192"]')?.setAttribute('href', `${baseUrl}icon-192.png`);
 
 // Register Service Worker for PWA
 if ('serviceWorker' in navigator) {

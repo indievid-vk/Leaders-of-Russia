@@ -93,8 +93,13 @@ export default function Navigation({
             onClick={() => onSelectSection('rulers')}
             className="flex items-center gap-3 cursor-pointer group"
           >
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-700 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-blue-200 group-hover:scale-105 transition-transform">
-              <Crown size={22} className="text-yellow-300" />
+            <div className="w-10 h-10 rounded-2xl overflow-hidden shadow-md shadow-slate-200 group-hover:scale-105 transition-transform shrink-0 border border-slate-200/80 bg-white">
+              <img 
+                src="icon-192.png" 
+                alt="История. Подготовка" 
+                className="w-full h-full object-cover"
+                loading="eager"
+              />
             </div>
             <div>
               <div className="flex items-center gap-1.5">

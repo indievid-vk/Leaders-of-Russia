@@ -1,10 +1,16 @@
-const CACHE_NAME = 'rulers-pwa-v7';
+const CACHE_NAME = 'rulers-pwa-v8';
 const PRECACHE_URLS = [
   './',
   'index.html',
   'manifest.json',
+  'icon.png',
+  'icon-192.png',
+  'icon-512.png',
   'icon-192.webp',
-  'icon-512.webp'
+  'icon-512.webp',
+  'apple-touch-icon.png',
+  'favicon.ico',
+  'favicon.png'
 ];
 
 // Pre-cache static assets on install

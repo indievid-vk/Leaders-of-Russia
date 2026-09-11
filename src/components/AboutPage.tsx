@@ -42,8 +42,12 @@ export default function AboutPage({ onBack }: AboutPageProps) {
         {/* Section 1: About App */}
         <section id="about-mission-section" className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100">
           <div className="flex items-center gap-4 mb-6">
-            <div className="bg-blue-600 text-white p-3 rounded-2xl shadow-lg shadow-blue-100">
-              <BookOpen size={28} />
+            <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-lg shadow-slate-200 shrink-0 border border-slate-100 bg-white">
+              <img 
+                src="icon-192.png" 
+                alt="История. Подготовка" 
+                className="w-full h-full object-cover"
+              />
             </div>
             <div>
               <h2 className="text-xl font-bold text-slate-900">О приложении</h2>

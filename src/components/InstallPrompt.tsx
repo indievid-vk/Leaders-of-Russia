@@ -217,9 +217,13 @@ export default function InstallPrompt() {
                 <X size={18} />
               </button>
 
-              {/* Phone icon Badge */}
-              <div className="bg-[#FFF4E5] w-24 h-24 rounded-full flex items-center justify-center mb-6 mt-2 border border-[#FFE2BF]/40 shadow-inner">
-                <Smartphone size={40} className="text-[#FF7A00] stroke-[2]" />
+              {/* App Icon Badge */}
+              <div className="w-20 h-20 rounded-3xl overflow-hidden mb-5 mt-2 border-2 border-slate-100 shadow-lg shadow-slate-200 shrink-0 bg-white">
+                <img 
+                  src="icon-192.png" 
+                  alt="История. Подготовка" 
+                  className="w-full h-full object-cover"
+                />
               </div>
               
               <h3 className="text-2xl font-bold text-slate-900 tracking-tight font-sans">
