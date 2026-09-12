@@ -1,29 +1,76 @@
-import { motion } from 'motion/react';
 import { 
   ChevronLeft, 
-  Info, 
+  Crown, 
+  Calendar, 
+  BookMarked, 
+  Landmark, 
+  GitFork, 
+  GraduationCap, 
   Zap, 
+  ShieldCheck, 
   Globe, 
   Cpu, 
   Mail, 
   Heart, 
-  Download, 
-  Check, 
-  ShieldCheck, 
-  BookOpen, 
-  Quote
+  Check
 } from 'lucide-react';
 import BackToTopButton from './BackToTopButton';
 
 interface AboutPageProps {
   onBack: () => void;
+  onSelectSection?: (section: 'rulers' | 'dates' | 'terms' | 'architecture' | 'schemes' | 'quiz') => void;
 }
 
-export default function AboutPage({ onBack }: AboutPageProps) {
+export default function AboutPage({ onBack, onSelectSection }: AboutPageProps) {
+  const sections = [
+    {
+      id: 'rulers' as const,
+      name: 'Правители',
+      icon: Crown,
+      color: 'text-amber-700 bg-amber-100/80 border-amber-200/60',
+      description: 'Полная хронология глав государства от Рюрика до современности. Карточки с датами правления, династиями, реформами, внешнеполитическими событиями, портретами и современниками.'
+    },
+    {
+      id: 'dates' as const,
+      name: 'Даты',
+      icon: Calendar,
+      color: 'text-blue-700 bg-blue-100/80 border-blue-200/60',
+      description: 'Хронологическая лента всех ключевых исторических событий с разделением по эпохам, удобным поиском и функцией отметки изученного материала.'
+    },
+    {
+      id: 'terms' as const,
+      name: 'Термины',
+      icon: BookMarked,
+      color: 'text-emerald-700 bg-emerald-100/80 border-emerald-200/60',
+      description: 'Словарь исторических терминов, понятий и правовых памятников (от древнерусских институтов до новейшей эпохи), необходимых для успешной сдачи экзаменов.'
+    },
+    {
+      id: 'architecture' as const,
+      name: 'Архитектура',
+      icon: Landmark,
+      color: 'text-purple-700 bg-purple-100/80 border-purple-200/60',
+      description: 'Каталог памятников зодчества и скульптуры: стили (шатровый, нарышкинское барокко, классицизм, ампир), архитекторы, века постройки, города и иллюстрации для заданий по культуре.'
+    },
+    {
+      id: 'schemes' as const,
+      name: 'Схемы',
+      icon: GitFork,
+      color: 'text-sky-700 bg-sky-100/80 border-sky-200/60',
+      description: 'Интерактивные структурные схемы государственного аппарата, сословий, битв и ключевых реформ с возможностью масштабирования и детального изучения.'
+    },
+    {
+      id: 'quiz' as const,
+      name: 'Тренажер',
+      icon: GraduationCap,
+      color: 'text-indigo-700 bg-indigo-100/80 border-indigo-200/60',
+      description: 'Интерактивные тренировочные тесты для проверки и закрепления знаний по датам, личностям и терминологии с отслеживанием прогресса.'
+    }
+  ];
+
   return (
     <div id="about-page-container" className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-slate-200 px-4 sm:px-6 py-4 flex items-center gap-4 sticky top-0 z-20">
+      <header className="bg-white shadow-xs border-b border-slate-200/80 px-4 sm:px-6 py-4 flex items-center gap-4 sticky top-0 z-20">
         <button 
           onClick={onBack}
           className="p-2 hover:bg-slate-100 rounded-xl transition-colors text-slate-600 cursor-pointer active:scale-95"
@@ -33,92 +80,124 @@ export default function AboutPage({ onBack }: AboutPageProps) {
         </button>
         <div>
           <h1 className="text-xl font-bold text-slate-900">О приложении</h1>
-          <p className="text-xs text-slate-500 uppercase tracking-wider font-medium">Технологии и миссия</p>
+          <p className="text-xs text-slate-500 font-medium">Структура разделов и возможности</p>
         </div>
       </header>
 
       {/* Content */}
-      <main className="flex-1 max-w-2xl w-full mx-auto p-4 sm:p-8 space-y-8 pb-24">
-        {/* Section 1: About App */}
-        <section id="about-mission-section" className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-lg shadow-slate-200 shrink-0 border border-slate-100 bg-white">
+      <main className="flex-1 max-w-2xl w-full mx-auto p-4 sm:p-8 space-y-6 pb-24">
+        {/* 1. Theological & Spiritual Epigraph Quote AT TOP */}
+        <section id="about-quote-section" className="bg-amber-50/90 border border-amber-200/80 rounded-3xl p-5 sm:p-7 shadow-xs">
+          <div className="flex items-start gap-3.5 sm:gap-4">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl overflow-hidden shadow-md shadow-amber-900/10 shrink-0 border border-amber-200/90 bg-white">
               <img 
                 src="icon-192.png" 
                 alt="История. Подготовка" 
                 className="w-full h-full object-cover"
+                loading="eager"
               />
             </div>
-            <div>
-              <h2 className="text-xl font-bold text-slate-900">О приложении</h2>
-              <p className="text-xs text-slate-400">Практическая ценность и образование</p>
-            </div>
-          </div>
-          <p className="text-slate-600 leading-relaxed text-base sm:text-lg mb-4">
-            Приложение <strong className="text-slate-900 font-semibold">История. Подготовка</strong> создано для эффективного и наглядного запоминания хронологии правления, дат, династий и ключевых исторических вех нашего Отечества в интерактивном формате карточек.
-          </p>
-          <p className="text-slate-600 leading-relaxed text-sm sm:text-base">
-            Оно помогает школьникам, студентам и всем интересующимся историей легко ориентироваться в эпохах от Рюрика до новейшего времени.
-          </p>
-
-          {/* Theological & Spiritual Quote */}
-          <div className="mt-6 bg-amber-50/70 border border-amber-200/70 rounded-2xl p-5 relative overflow-hidden">
-            <div className="flex items-start gap-3">
-              <Quote size={22} className="text-amber-700 shrink-0 mt-0.5" />
-              <div>
-                <p className="text-slate-700 text-sm italic leading-relaxed">
-                  «В судьбах человеческих, в судьбах народов и царств действует непостижимый Промысл Божий, направляющий всё к духовному спасению и благу человека».
-                </p>
-                <p className="text-xs text-amber-900/80 font-semibold mt-2 text-right">
-                  — Святитель Игнатий (Брянчанинов)
-                </p>
-              </div>
+            <div className="space-y-2 flex-1 min-w-0">
+              <p className="text-slate-800 text-xs sm:text-sm md:text-base italic leading-relaxed font-serif">
+                «В судьбах человеческих, в судьбах народов и царств действует непостижимый Промысл Божий, направляющий всё к духовному спасению и благу человека».
+              </p>
+              <p className="text-xs sm:text-sm text-amber-950/80 font-semibold text-right">
+                — Святитель Игнатий (Брянчанинов)
+              </p>
             </div>
           </div>
         </section>
 
-        {/* Section 2: Technical Features & PWA */}
-        <section id="about-features-section" className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="bg-blue-600 text-white p-3 rounded-2xl shadow-lg shadow-blue-100">
-              <Zap size={28} />
+        {/* 2. App Mission & Overview */}
+        <section id="about-mission-section" className="bg-white rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-200/70">
+          <div className="mb-3">
+            <h2 className="text-xl font-bold text-slate-900">История. Подготовка</h2>
+            <p className="text-xs text-slate-500 font-medium">Интерактивный помощник для подготовки к экзаменам</p>
+          </div>
+          <p className="text-slate-600 leading-relaxed text-sm sm:text-base">
+            Приложение создано для системного освоения курса истории России, успешной сдачи экзаменов (ЕГЭ и ОГЭ) и визуального запоминания исторических закономерностей, эпох и персоналий от Древней Руси до новейшего периода.
+          </p>
+        </section>
+
+        {/* 3. Sections of the App */}
+        <section id="about-sections-catalog" className="bg-white rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-200/70 space-y-4">
+          <div className="border-b border-slate-100 pb-3 mb-2">
+            <h2 className="text-lg font-bold text-slate-900">Разделы приложения</h2>
+            <p className="text-xs text-slate-500">Краткий обзор учебных материалов и возможностей</p>
+          </div>
+
+          <div className="space-y-3">
+            {sections.map(sec => {
+              const Icon = sec.icon;
+              return (
+                <div 
+                  key={sec.id}
+                  onClick={() => onSelectSection && onSelectSection(sec.id)}
+                  className={`p-4 rounded-2xl border border-slate-200/70 bg-slate-50/60 hover:bg-blue-50/30 hover:border-blue-200 transition-all ${
+                    onSelectSection ? 'cursor-pointer active:scale-[0.99]' : ''
+                  }`}
+                >
+                  <div className="flex items-start gap-3.5">
+                    <div className={`p-2.5 rounded-xl border shrink-0 ${sec.color}`}>
+                      <Icon size={20} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-base font-bold text-slate-900 mb-1">
+                        {sec.name}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                        {sec.description}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* 4. Technical Features & PWA (NO Home Screen install callout) */}
+        <section id="about-features-section" className="bg-white rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-200/70">
+          <div className="flex items-center gap-4 mb-5">
+            <div className="bg-blue-600 text-white p-3 rounded-2xl shadow-md shadow-blue-200">
+              <Zap size={24} />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-slate-900">Технические особенности</h2>
-              <p className="text-xs text-slate-400">Современный стек и безопасность</p>
+              <h2 className="text-lg font-bold text-slate-900">Технические особенности</h2>
+              <p className="text-xs text-slate-500 font-medium">Автономность и конфиденциальность</p>
             </div>
           </div>
           
-          <div className="space-y-6">
+          <div className="space-y-4">
             <div>
-              <h3 className="font-bold text-slate-900 mb-2 flex items-center gap-2">
+              <h3 className="font-bold text-slate-900 mb-1.5 flex items-center gap-2 text-sm sm:text-base">
                 <ShieldCheck size={18} className="text-blue-600" />
                 Технология PWA (Progressive Web App)
               </h3>
-              <p className="text-slate-600 leading-relaxed text-sm sm:text-base">
-                Приложение работает как автономное веб-приложение (PWA). Оно функционирует прямо в вашем браузере, не требует загрузки из App Store или Google Play, почти не занимает места в памяти устройства и готово к установке в один клик.
+              <p className="text-slate-600 leading-relaxed text-xs sm:text-sm">
+                Приложение функционирует как автономное веб-приложение: моментально запускается в браузере, не требует загрузки из магазинов приложений и почти не занимает места в памяти смартфона или компьютера.
               </p>
             </div>
 
-            <p className="text-slate-600 leading-relaxed text-sm sm:text-base bg-slate-50 p-4 rounded-2xl border border-slate-100">
-              Все ваши учебные результаты, статистика прогресса и закладки сохраняются исключительно локально на вашем устройстве через <strong className="text-slate-800 font-semibold">IndexedDB</strong> и <strong className="text-slate-800 font-semibold">localStorage</strong>. Это гарантирует 100% приватность без передачи персональных данных на сторонние серверы.
+            <p className="text-slate-600 leading-relaxed text-xs sm:text-sm bg-slate-50 p-4 rounded-2xl border border-slate-100">
+              Весь ваш прогресс обучения, отметки изученного и закладки сохраняются локально в хранилище вашего устройства (<strong className="text-slate-800 font-semibold">IndexedDB</strong> и <strong className="text-slate-800 font-semibold">localStorage</strong>). Ваши данные остаются на 100% приватными и не передаются сторонним серверам.
             </p>
 
             {/* Advantages */}
-            <div className="bg-blue-50/80 rounded-2xl p-6 border border-blue-100">
-              <h3 className="font-bold text-blue-900 mb-4 flex items-center gap-2">
-                <Globe size={20} /> Преимущества:
+            <div className="bg-blue-50/70 rounded-2xl p-5 border border-blue-100">
+              <h3 className="font-bold text-blue-950 mb-3 flex items-center gap-2 text-sm">
+                <Globe size={18} /> Преимущества:
               </h3>
-              <ul className="space-y-3">
+              <ul className="space-y-2.5">
                 {[
-                  'Полный оффлайн-доступ: работает без интернета после первого открытия.',
-                  'Экономия памяти: не требует гигабайтов дискового пространства.',
-                  'Мгновенные обновления: новая версия активируется без ожидания маркетплейсов.',
-                  'Защищенность: взаимодействие происходит исключительно через безопасный протокол HTTPS.'
+                  'Оффлайн-режим: доступ ко всем материалам без подключения к интернету.',
+                  'Экономия памяти: размер приложения в десятки раз меньше нативных программ.',
+                  'Мгновенная готовность: быстрый запуск на мобильных телефонах, планшетах и ПК.',
+                  'Безопасность: работа по зашифрованному протоколу HTTPS.'
                 ].map((text, i) => (
-                  <li key={i} className="flex gap-3 text-sm text-slate-700">
-                    <div className="bg-blue-600/10 p-1 rounded-md h-fit mt-0.5 shrink-0">
-                      <Check size={14} className="text-blue-600 stroke-[3]" />
+                  <li key={i} className="flex gap-2.5 text-xs sm:text-sm text-slate-700">
+                    <div className="bg-blue-600/10 p-0.5 rounded-md h-fit mt-0.5 shrink-0">
+                      <Check size={13} className="text-blue-600 stroke-[3]" />
                     </div>
                     <span>{text}</span>
                   </li>
@@ -127,58 +206,38 @@ export default function AboutPage({ onBack }: AboutPageProps) {
             </div>
 
             {/* Limitations */}
-            <div className="bg-slate-50 rounded-2xl p-5 border border-slate-200/80">
-              <h3 className="font-bold text-slate-700 mb-1.5 flex items-center gap-2 text-sm">
-                <Cpu size={18} /> Ограничения:
+            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200/70">
+              <h3 className="font-bold text-slate-700 mb-1 flex items-center gap-2 text-xs sm:text-sm">
+                <Cpu size={16} /> Ограничения:
               </h3>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Сохранение локального прогресса и оффлайн-кэша зависит от настроек браузера. При полной ручной очистке истории и кэша браузера сохраненный локальный прогресс карточек может сброситься.
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Сохранность локального прогресса зависит от настроек браузера: при полной очистке кэша и истории браузера локально сохраненный прогресс карточек может обнулиться.
               </p>
-            </div>
-
-            {/* Install Callout */}
-            <div className="bg-white rounded-2xl p-6 border border-blue-100 shadow-sm flex flex-col items-center text-center mt-4">
-              <div className="bg-blue-600 text-white p-3 rounded-2xl mb-3 shadow-lg shadow-blue-100">
-                <Download size={24} />
-              </div>
-              <h3 className="font-bold text-slate-900 mb-1">Установка на экран «Домой»</h3>
-              <p className="text-sm text-slate-500 mb-4 max-w-sm">
-                Вы можете сохранить приложение на экран «Домой» вашего смартфона или планшета для мгновенного доступа без интернета.
-              </p>
-              <button
-                onClick={() => {
-                  window.dispatchEvent(new CustomEvent('trigger-pwa-install-prompt'));
-                }}
-                className="bg-[#c33b3b] hover:bg-[#b03030] text-white font-bold py-3 px-6 rounded-2xl text-sm transition-all shadow-md shadow-red-950/20 flex items-center gap-2 active:scale-95 cursor-pointer"
-              >
-                <Download size={16} />
-                <span>Открыть окно установки PWA</span>
-              </button>
             </div>
           </div>
         </section>
 
-        {/* Section 3: Feedback Block */}
-        <section id="about-feedback-section" className="flex justify-center pt-4">
-          <div className="bg-[#f5f0e6] rounded-[48px] p-8 sm:p-10 w-full max-w-xs shadow-sm border border-[#e8dfcf] flex flex-col items-center">
-            <h3 className="text-[#8b1a1a] text-3xl font-serif mb-8 italic">Обратная связь</h3>
+        {/* 5. Feedback Block */}
+        <section id="about-feedback-section" className="flex justify-center pt-2">
+          <div className="bg-[#f5f0e6] rounded-[40px] p-6 sm:p-8 w-full max-w-xs shadow-xs border border-[#e8dfcf] flex flex-col items-center">
+            <h3 className="text-[#8b1a1a] text-2xl font-serif mb-6 italic">Обратная связь</h3>
             
             <a 
               href="mailto:indievid.krd@gmail.com"
-              className="bg-[#e9e3d5] hover:bg-[#e0d9c8] transition-colors w-full rounded-[24px] p-6 flex items-center gap-4 group cursor-pointer"
+              className="bg-[#e9e3d5] hover:bg-[#e0d9c8] transition-colors w-full rounded-2xl p-4 flex items-center gap-3.5 group cursor-pointer"
             >
               <div className="text-slate-600 group-hover:scale-110 transition-transform">
-                <Mail size={24} />
+                <Mail size={22} />
               </div>
               <div className="text-left">
-                <div className="text-slate-700 text-lg leading-tight font-medium">Написать</div>
-                <div className="text-slate-700 text-lg leading-tight font-medium">разработчику</div>
+                <div className="text-slate-700 text-base leading-tight font-medium">Написать</div>
+                <div className="text-slate-700 text-base leading-tight font-medium">разработчику</div>
               </div>
             </a>
 
-            <div className="mt-10 flex flex-col items-center text-center">
-              <div className="flex items-center gap-1.5 text-slate-400 text-xs font-medium uppercase tracking-widest mb-1">
-                <Heart size={14} className="text-red-500 fill-red-500" />
+            <div className="mt-8 flex flex-col items-center text-center">
+              <div className="flex items-center gap-1.5 text-slate-400 text-2xs font-medium uppercase tracking-widest mb-1">
+                <Heart size={12} className="text-red-500 fill-red-500" />
                 <span>Создано нейрокомандой</span>
               </div>
               <div className="text-slate-700 text-sm font-semibold tracking-wide">
@@ -194,3 +253,4 @@ export default function AboutPage({ onBack }: AboutPageProps) {
     </div>
   );
 }
+

@@ -18,6 +18,7 @@ import {
 import confetti from 'canvas-confetti';
 import Flashcard, { RulerData } from './Flashcard';
 import Timeline from './Timeline';
+import HorizontalScroll from './HorizontalScroll';
 import { RULERS_DATA } from '../data/rulers';
 
 type StudyVariant = 'nameFirst' | 'detailsFirst' | 'mixed';
@@ -159,10 +160,10 @@ export default function RulersSection({
       <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200/80 space-y-4">
         <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
           {/* Study Mode Selector */}
-          <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200 overflow-x-auto">
+          <div className="grid grid-cols-3 sm:flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200">
             <button
               onClick={() => setStudyMode('nameFirst')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+              className={`flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
                 variant === 'nameFirst'
                   ? 'bg-white text-amber-900 shadow-sm'
                   : 'text-slate-600 hover:text-slate-900'
@@ -173,7 +174,7 @@ export default function RulersSection({
             </button>
             <button
               onClick={() => setStudyMode('detailsFirst')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+              className={`flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
                 variant === 'detailsFirst'
                   ? 'bg-white text-amber-900 shadow-sm'
                   : 'text-slate-600 hover:text-slate-900'
@@ -184,7 +185,7 @@ export default function RulersSection({
             </button>
             <button
               onClick={() => setStudyMode('mixed')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+              className={`flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
                 variant === 'mixed'
                   ? 'bg-white text-amber-900 shadow-sm'
                   : 'text-slate-600 hover:text-slate-900'
@@ -206,7 +207,10 @@ export default function RulersSection({
         </div>
 
         {/* Era Filters */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar pt-1 border-t border-slate-100">
+        <HorizontalScroll 
+          className="pt-1 border-t border-slate-100"
+          contentClassName="flex items-center gap-1.5 pb-1 text-xs"
+        >
           <span className="text-slate-400 shrink-0 mr-1 flex items-center gap-1 font-medium">
             <Filter size={13} /> Эпоха:
           </span>
@@ -226,7 +230,7 @@ export default function RulersSection({
               {era === 'all' ? 'Все правители' : era}
             </button>
           ))}
-        </div>
+        </HorizontalScroll>
       </div>
 
       {/* Flashcard Area */}

@@ -13,6 +13,7 @@ import {
   FileText
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import HorizontalScroll from './HorizontalScroll';
 import { TERMS_DATA } from '../data/terms';
 import { HistoryTerm } from '../types';
 
@@ -175,7 +176,10 @@ export default function TermsSection({ learnedSet, onToggleLearned }: TermsSecti
 
         {/* Category & Era filters */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 pt-1 border-t border-slate-100">
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar w-full">
+          <HorizontalScroll 
+            className="w-full"
+            contentClassName="flex items-center gap-1.5 pb-1 text-xs"
+          >
             <span className="text-slate-400 shrink-0 mr-1 flex items-center gap-1 font-medium">
               <Tag size={13} /> Сфера:
             </span>
@@ -195,10 +199,13 @@ export default function TermsSection({ learnedSet, onToggleLearned }: TermsSecti
                 {cat === 'all' ? 'Все категории' : cat}
               </button>
             ))}
-          </div>
+          </HorizontalScroll>
         </div>
 
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar">
+        <HorizontalScroll 
+          className="w-full"
+          contentClassName="flex items-center gap-1.5 pb-1 text-xs"
+        >
           <span className="text-slate-400 shrink-0 mr-1 flex items-center gap-1 font-medium">
             <Filter size={13} /> Эпоха:
           </span>
@@ -218,7 +225,7 @@ export default function TermsSection({ learnedSet, onToggleLearned }: TermsSecti
               {era === 'all' ? 'Все эпохи' : era}
             </button>
           ))}
-        </div>
+        </HorizontalScroll>
       </div>
 
       {/* Mode 1: Trainer for Task 19 */}

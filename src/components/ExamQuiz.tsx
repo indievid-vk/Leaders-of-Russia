@@ -14,6 +14,7 @@ import {
   Layers
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import HorizontalScroll from './HorizontalScroll';
 import { DATES_DATA } from '../data/dates';
 import { RULERS_DATA } from '../data/rulers';
 import { TERMS_DATA } from '../data/terms';
@@ -262,32 +263,37 @@ export default function ExamQuiz() {
       </div>
 
       {/* Category selector */}
-      <div className="bg-white rounded-2xl p-3 sm:p-4 shadow-sm border border-slate-200 flex items-center gap-2 overflow-x-auto no-scrollbar">
-        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-1">
-          Раздел:
-        </span>
-        {[
-          { key: 'all', label: 'Все темы' },
-          { key: 'dates', label: 'Даты' },
-          { key: 'rulers', label: 'Правители' },
-          { key: 'terms', label: 'Термины' },
-          { key: 'architecture', label: 'Культура' }
-        ].map(cat => (
-          <button
-            key={cat.key}
-            onClick={() => {
-              setCurrentCategory(cat.key as any);
-              restartQuiz();
-            }}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-              currentCategory === cat.key
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70'
-            }`}
-          >
-            {cat.label}
-          </button>
-        ))}
+      <div className="bg-white rounded-2xl p-3 sm:p-4 shadow-sm border border-slate-200">
+        <HorizontalScroll 
+          className="w-full"
+          contentClassName="flex items-center gap-2 pb-1"
+        >
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-1">
+            Раздел:
+          </span>
+          {[
+            { key: 'all', label: 'Все темы' },
+            { key: 'dates', label: 'Даты' },
+            { key: 'rulers', label: 'Правители' },
+            { key: 'terms', label: 'Термины' },
+            { key: 'architecture', label: 'Культура' }
+          ].map(cat => (
+            <button
+              key={cat.key}
+              onClick={() => {
+                setCurrentCategory(cat.key as any);
+                restartQuiz();
+              }}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                currentCategory === cat.key
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70'
+              }`}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </HorizontalScroll>
       </div>
 
       {/* Quiz Card */}

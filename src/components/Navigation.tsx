@@ -9,6 +9,7 @@ import {
   Info,
   Sparkles
 } from 'lucide-react';
+import HorizontalScroll from './HorizontalScroll';
 
 export type ActiveSection = 'rulers' | 'dates' | 'terms' | 'architecture' | 'schemes' | 'quiz';
 
@@ -139,7 +140,10 @@ export default function Navigation({
         </div>
 
         {/* Section Navigation Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto py-2 no-scrollbar">
+        <HorizontalScroll 
+          className="py-1"
+          contentClassName="flex items-center gap-1.5 py-1"
+        >
           {navItems.map(item => {
             const isActive = activeSection === item.id;
             const Icon = item.icon;
@@ -165,7 +169,7 @@ export default function Navigation({
               </button>
             );
           })}
-        </div>
+        </HorizontalScroll>
       </div>
     </header>
   );

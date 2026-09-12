@@ -18,6 +18,7 @@ import {
   Award
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import HorizontalScroll from './HorizontalScroll';
 import { ARCHITECTURE_DATA } from '../data/architecture';
 import { ArchitectureMonument } from '../types';
 
@@ -203,7 +204,10 @@ export default function ArchitectureSection({ learnedSet, onToggleLearned }: Arc
         </div>
 
         {/* Century Filter */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar">
+        <HorizontalScroll 
+          className="w-full"
+          contentClassName="flex items-center gap-1.5 pb-1 text-xs"
+        >
           <span className="text-slate-400 shrink-0 mr-1 flex items-center gap-1 font-medium">
             <Clock size={13} /> Эпоха / Век:
           </span>
@@ -223,10 +227,13 @@ export default function ArchitectureSection({ learnedSet, onToggleLearned }: Arc
               {century === 'all' ? 'Все века' : century}
             </button>
           ))}
-        </div>
+        </HorizontalScroll>
 
         {/* Style Filter */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar">
+        <HorizontalScroll 
+          className="w-full"
+          contentClassName="flex items-center gap-1.5 pb-1 text-xs"
+        >
           <span className="text-slate-400 shrink-0 mr-1 flex items-center gap-1 font-medium">
             <Sparkles size={13} /> Стиль:
           </span>
@@ -246,11 +253,14 @@ export default function ArchitectureSection({ learnedSet, onToggleLearned }: Arc
               {style === 'all' ? 'Все стили' : style}
             </button>
           ))}
-        </div>
+        </HorizontalScroll>
 
         {/* City Filter */}
         {cities.length > 2 && (
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar">
+          <HorizontalScroll 
+            className="w-full"
+            contentClassName="flex items-center gap-1.5 pb-1 text-xs"
+          >
             <span className="text-slate-400 shrink-0 mr-1 flex items-center gap-1 font-medium">
               <MapPin size={13} /> Город:
             </span>
@@ -270,7 +280,7 @@ export default function ArchitectureSection({ learnedSet, onToggleLearned }: Arc
                 {city === 'all' ? 'Все города' : city}
               </button>
             ))}
-          </div>
+          </HorizontalScroll>
         )}
       </div>
 

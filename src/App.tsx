@@ -134,7 +134,13 @@ export default function App() {
   if (showAbout) {
     return (
       <>
-        <AboutPage onBack={() => setShowAbout(false)} />
+        <AboutPage 
+          onBack={() => setShowAbout(false)} 
+          onSelectSection={(sec) => {
+            setActiveSection(sec);
+            setShowAbout(false);
+          }}
+        />
         <InstallPrompt />
         <WelcomePrompt />
       </>

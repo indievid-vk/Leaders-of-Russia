@@ -14,6 +14,7 @@ import {
   Award
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import HorizontalScroll from './HorizontalScroll';
 import { DATES_DATA } from '../data/dates';
 import { HistoryEventDate } from '../types';
 
@@ -188,7 +189,10 @@ export default function DatesSection({ learnedSet, onToggleLearned }: DatesSecti
         </div>
 
         {/* Era Filter Chips */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar">
+        <HorizontalScroll 
+          className="w-full"
+          contentClassName="flex items-center gap-1.5 pb-1 text-xs"
+        >
           <span className="text-slate-400 shrink-0 mr-1 flex items-center gap-1 font-medium">
             <Filter size={13} /> Эпоха:
           </span>
@@ -208,7 +212,7 @@ export default function DatesSection({ learnedSet, onToggleLearned }: DatesSecti
               {era === 'all' ? 'Все эпохи' : era}
             </button>
           ))}
-        </div>
+        </HorizontalScroll>
       </div>
 
       {/* Mode 1: Interactive Flashcards */}
@@ -337,7 +341,7 @@ export default function DatesSection({ learnedSet, onToggleLearned }: DatesSecti
           </div>
 
           <div className="space-y-3">
-            {filteredDates.map((item, index) => {
+            {filteredDates.map((item) => {
               const isLearned = learnedSet.has(`date-${item.id}`);
               return (
                 <div
@@ -348,60 +352,59 @@ export default function DatesSection({ learnedSet, onToggleLearned }: DatesSecti
                       : 'border-slate-200 hover:border-blue-300 shadow-xs'
                   }`}
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-3">
-                      <div className="px-3 py-2 rounded-xl bg-blue-50 border border-blue-100 text-blue-700 font-black text-base sm:text-lg shrink-0 text-center min-w-[75px]">
-                        {item.date}
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-slate-100 text-slate-600">
-                            {item.era}
+                  <div className="space-y-2">
+                    {/* Header: Date badge, Era, Badges, and Learned toggle */}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                        <span className="px-2.5 py-1 rounded-lg bg-blue-50 border border-blue-200/80 text-blue-700 font-bold text-xs sm:text-sm shrink-0">
+                          {item.date}
+                        </span>
+                        <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-slate-100 text-slate-600">
+                          {item.era}
+                        </span>
+                        {item.importance === 'high' && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-amber-100 text-amber-800">
+                            <Flame size={11} /> Топ ЕГЭ
                           </span>
-                          {item.importance === 'high' && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-amber-100 text-amber-800">
-                              <Flame size={11} /> Топ ЕГЭ
-                            </span>
-                          )}
-                          {item.ruler && (
-                            <span className="text-xs text-indigo-700 font-medium">
-                              {item.ruler}
-                            </span>
-                          )}
-                        </div>
-
-                        <h3 className="font-bold text-slate-900 text-base sm:text-lg leading-snug">
-                          {item.title}
-                        </h3>
-
-                        {item.details && (
-                          <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
-                            {item.details}
-                          </p>
                         )}
-
-                        {item.egeContext && (
-                          <div className="mt-2 p-3 bg-amber-50/90 rounded-xl border border-amber-200 text-xs text-amber-900 leading-relaxed font-medium">
-                            <span className="font-bold text-amber-950">💡 Важно для ЕГЭ: </span>
-                            {item.egeContext}
-                          </div>
+                        {item.ruler && (
+                          <span className="text-xs text-indigo-700 font-medium">
+                            {item.ruler}
+                          </span>
                         )}
                       </div>
+
+                      <button
+                        onClick={() => handleCardLearned(item.id)}
+                        className={`p-1.5 sm:p-2 rounded-xl border shrink-0 transition-all cursor-pointer ${
+                          isLearned 
+                            ? 'bg-emerald-500 border-emerald-600 text-white shadow-xs' 
+                            : 'bg-slate-50 border-slate-200 text-slate-400 hover:text-emerald-600 hover:border-emerald-300'
+                        }`}
+                        title={isLearned ? 'Изучено (нажмите для сброса)' : 'Отметить как изученное'}
+                        aria-label="Отметка изучения даты"
+                      >
+                        <CheckCircle2 size={18} />
+                      </button>
                     </div>
 
-                    <button
-                      onClick={() => handleCardLearned(item.id)}
-                      className={`p-2 rounded-xl border shrink-0 transition-all cursor-pointer ${
-                        isLearned 
-                          ? 'bg-emerald-500 border-emerald-600 text-white shadow-sm' 
-                          : 'bg-slate-50 border-slate-200 text-slate-400 hover:text-emerald-600 hover:border-emerald-300'
-                      }`}
-                      title={isLearned ? 'Изучено (нажмите для сброса)' : 'Отметить как изученное'}
-                      aria-label="Отметка изучения даты"
-                    >
-                      <CheckCircle2 size={20} />
-                    </button>
+                    {/* Event title (пояснение жирным шрифтом) */}
+                    <h3 className="font-bold text-slate-900 text-sm sm:text-base leading-snug tracking-tight">
+                      {item.title}
+                    </h3>
+
+                    {item.details && (
+                      <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
+                        {item.details}
+                      </p>
+                    )}
+
+                    {item.egeContext && (
+                      <div className="mt-2 p-2.5 sm:p-3 bg-amber-50/90 rounded-xl border border-amber-200 text-xs text-amber-900 leading-relaxed font-medium">
+                        <span className="font-bold text-amber-950">💡 Важно для ЕГЭ: </span>
+                        {item.egeContext}
+                      </div>
+                    )}
                   </div>
                 </div>
               );

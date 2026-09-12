@@ -15,6 +15,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import HorizontalScroll from './HorizontalScroll';
 import { ALL_SCHEMES_DATA } from '../data/allSchemes';
 import { HistoryScheme } from '../types';
 import TextbookCanvasViewer from './TextbookCanvasViewer';
@@ -238,7 +239,10 @@ export default function SchemesSection({ learnedSet, onToggleLearned }: SchemesS
         </div>
 
         {/* Era pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar pt-2 border-t border-slate-100">
+        <HorizontalScroll 
+          className="pt-2 border-t border-slate-100"
+          contentClassName="flex items-center gap-1.5 pb-1"
+        >
           <div className="text-xs font-bold text-slate-400 mr-1 flex items-center gap-1 shrink-0">
             <Filter size={13} />
             <span>Эпоха:</span>
@@ -263,7 +267,7 @@ export default function SchemesSection({ learnedSet, onToggleLearned }: SchemesS
               {era === 'all' ? 'Все эпохи' : era}
             </button>
           ))}
-        </div>
+        </HorizontalScroll>
       </div>
 
       {/* Horizontal Carousel of Schemes */}
@@ -289,7 +293,10 @@ export default function SchemesSection({ learnedSet, onToggleLearned }: SchemesS
           </span>
         </div>
 
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
+        <HorizontalScroll 
+          className="w-full"
+          contentClassName="flex items-center gap-2 pb-2"
+        >
           {filteredSchemes.slice(0, 100).map(scheme => {
             const isSchemeLearned = learnedSet.has(scheme.id);
             const isSelected = scheme.id === currentScheme?.id;
@@ -335,7 +342,7 @@ export default function SchemesSection({ learnedSet, onToggleLearned }: SchemesS
               Показаны первые 100 схем. Введите номер или тему в поиске для остальных схем.
             </div>
           )}
-        </div>
+        </HorizontalScroll>
       </div>
 
       {/* Main View: AUTHENTIC TEXTBOOK VIEWER */}
